@@ -1,0 +1,3 @@
+# import_mifitness.py and weekly_digest.py use only the standard library (Python 3.10+).
+# Needed only for scripts/load_supabase.py --apply:
+psycopg[binary]>=3.2
