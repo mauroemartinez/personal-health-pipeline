@@ -12,7 +12,9 @@ data/processed/mi_fitness/*.jsonl        private, ignored by Git
         └──► scripts/load_supabase.py    upsert by deterministic id
                      ▼
              Supabase Postgres · schema `health`    not exposed to the API, RLS on, no anon access
-             views health.daily_metrics / health.weekly_metrics   (SQL analysis; future digest source)
+             views health.daily_metrics / health.weekly_metrics
+                     ▼
+             Edge Function `health-mcp` (read-only MCP server) ──► Claude custom connector (web & mobile)
 ```
 
 ## Privacy boundary
@@ -52,6 +54,23 @@ python scripts/load_supabase.py               # validates and counts, writes not
 python scripts/load_supabase.py --apply       # upsert; logs the run in health.import_runs
 ```
 
+## Chat with your data (MCP connector)
+
+`supabase/functions/health-mcp` is a small read-only [MCP](https://modelcontextprotocol.io) server that lets Claude answer questions about the data from any device, e.g. *"did I sleep worse on nights after treadmill workouts?"*.
+
+- Tools: `data_coverage`, `weekly_summary`, `daily_metrics`, `activities`. Fixed queries only, no free-form SQL.
+- Every query runs as `health_reader` (SELECT-only on schema `health`, migration `0002`) in a read-only transaction with a statement timeout.
+- Auth: the endpoint only answers at a secret path token; any other path returns 404.
+
+Deploy (idempotent):
+
+```powershell
+# .env: SUPABASE_ACCESS_TOKEN (personal access token) and HEALTH_SUPABASE_PROJECT_REF
+python scripts/deploy_connector.py   # applies 0002, sets the secret, deploys, smoke-tests
+```
+
+The connector URL is written to `data/private/connector_url.txt`. Add it in claude.ai → Customize → Connectors → *Add custom connector*; it is then available in the mobile apps too.
+
 ## Data model
 
 | Table | Grain | Content |
@@ -66,7 +85,8 @@ Timestamps are stored in UTC. `local_date` uses the record's own timezone when M
 ## Scope
 
 - **Now:** periodic manual Mi Fitness exports → local ETL → (optional) Supabase → weekly digest.
-- **Future ideas:** incremental capture through Android Health Connect, and near-real-time ingestion so an LLM can answer questions about the latest data on demand. See [docs/ingestion-plan.md](docs/ingestion-plan.md).
+- **Now (chat):** Claude reads the data on demand through the MCP connector.
+- **Future ideas:** incremental capture through Android Health Connect for near-real-time data, and OAuth instead of a path token for the connector. See [docs/ingestion-plan.md](docs/ingestion-plan.md).
 
 ## License
 

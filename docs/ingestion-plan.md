@@ -45,10 +45,12 @@ Xiaomi's account data export (requested from the Mi Fitness privacy settings, de
 2. ✅ Idempotent importer to private JSONL (`scripts/import_mifitness.py`).
 3. ✅ Weekly Markdown digest from local normalized data (`scripts/weekly_digest.py`).
 4. ✅ Private SQL schema and views (`supabase/migrations/0001_health_schema.sql`).
-5. ⏳ Apply the migration in Supabase, create `health_loader`, run `load_supabase.py --apply`.
-6. ⏳ Optional: generate the digest from `health.weekly_metrics` instead of local files.
+5. ✅ Apply the migration in Supabase, create `health_loader`, run `load_supabase.py --apply`.
+6. ✅ Read-only MCP connector so Claude can query the data (`supabase/functions/health-mcp`).
+7. ⏳ Optional: generate the digest from `health.weekly_metrics` instead of local files.
 
 ## Future ideas (not scheduled)
 
 - **Health Connect as an incremental source.** If added, it should reuse the same tables and natural keys so that historical exports and incremental data merge without duplicates. Health Connect has no stress record type, so stress would keep coming from Mi Fitness exports.
-- **Near-real-time ("streaming") ingestion.** Keep the database continuously up to date so an LLM can answer questions about the latest data on demand, instead of relying only on the weekly digest.
+- **Near-real-time ("streaming") ingestion.** Keep the database continuously up to date so the MCP connector always answers with the latest data, not just the last export.
+- **OAuth for the connector** instead of a secret path token.
