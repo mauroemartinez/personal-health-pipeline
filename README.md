@@ -1,75 +1,78 @@
 # Personal Health Data Pipeline
 
-Private-by-default ETL for personal activity and health data from a Xiaomi Mi Band (Mi Fitness app), built to ask an LLM grounded questions about sleep, stress, aerobic activity and weight.
+Turn your **Xiaomi Mi Band / Mi Fitness** history into data you can actually ask questions about: a private, idempotent ETL, a locked-down Postgres schema, weekly Markdown digests for any LLM, and a read-only **MCP connector** so Claude can answer questions like *"did I sleep worse on nights after treadmill workouts?"* from the web or your phone.
+
+Public code, private data: every real record stays on your machine or in your own Supabase project.
 
 ```text
-Mi Fitness account export (CSV)
+Mi Fitness account export (CSV, requested at account.xiaomi.com)
         │  scripts/import_mifitness.py   normalize · scrub identifiers · idempotent
         ▼
 data/processed/mi_fitness/*.jsonl        private, ignored by Git
-        ├──► scripts/weekly_digest.py → data/reports/weekly/<ISO week>.md   (Markdown for LLM analysis)
+        ├──► scripts/weekly_digest.py → data/reports/weekly/<ISO week>.md   paste into any LLM
         │
-        └──► scripts/load_supabase.py    upsert by deterministic id
+        └──► scripts/load_supabase.py    upsert by deterministic id, least-privilege role
                      ▼
-             Supabase Postgres · schema `health`    not exposed to the API, RLS on, no anon access
+             Supabase Postgres · schema `health`   not exposed to the API · RLS · no anon access
              views health.daily_metrics / health.weekly_metrics
                      ▼
-             Edge Function `health-mcp` (read-only MCP server) ──► Claude custom connector (web & mobile)
+             Edge Function `health-mcp`  read-only MCP server ──► Claude custom connector (web & mobile)
 ```
 
-## Privacy boundary
+## Use it with your own data
 
-This repository is public; the data is not.
+**→ Full step-by-step guide: [docs/setup-guide.md](docs/setup-guide.md)**
 
-- Real exports, normalized records, digests and credentials live under ignored paths: `data/private/`, `data/processed/`, `data/reports/`, `.env`.
-- The importer drops account and device identifiers (`Uid`, `Sid`, `Did`, `sid`, `dbKey`, `sidList`, …) and never reads GPX routes, member profiles, device settings or social records.
-- Scripts print counts and paths only, never biometric values. Database errors are reported by SQLSTATE only.
-- In Supabase, health data lives in a self-contained `health` schema. The schema is not exposed through the Data API, API roles (`anon`, `authenticated`) have no privileges, and loading uses a least-privilege role.
+| Stage | You get | Time |
+|---|---|---|
+| 1. Request your export from Xiaomi | Your history as CSV files | a few minutes, then wait for the email |
+| 2–3. Clone, configure, normalize | Clean JSONL, no identifiers | ~10 min |
+| 4. Weekly digest | A Markdown summary for any chat assistant | 1 command |
+| 5. Supabase *(optional)* | Your data in a private Postgres schema | ~15 min, free plan |
+| 6. Claude connector *(optional)* | Chat with your data from web or phone | ~10 min |
 
-## Quick start
+The shortest path (stages 1–4) needs only Python 3.10+, with no dependencies:
 
-Requires Python 3.10+. The importer and digest use only the standard library.
-
-```powershell
-copy .env.example .env                        # set HEALTH_UTC_OFFSET to your local offset
-# Put the unzipped Mi Fitness export in data/private/mi_fitness_export/
-python scripts/inspect_export.py              # optional: column names and row counts only
-python scripts/import_mifitness.py            # normalize (add --dry-run to only count)
-python scripts/weekly_digest.py               # last complete ISO week; or --week 2026-W46 / --latest
+```bash
+git clone https://github.com/mauroemartinez/personal-health-pipeline.git
+cd personal-health-pipeline
+cp .env.example .env                  # Windows: copy .env.example .env  → set HEALTH_UTC_OFFSET
+# unzip your Mi Fitness export into data/private/mi_fitness_export/
+python scripts/import_mifitness.py    # normalize (safe to re-run)
+python scripts/weekly_digest.py       # → data/reports/weekly/<ISO week>.md
 ```
 
-The importer is safe to re-run: the same input produces byte-identical output, and a newer export updates records in place. The digest compares the week against a baseline of previous weeks (`--baseline-weeks`, default 4). Its text is in Spanish, the author's working language.
+The guide also covers updating with new exports, troubleshooting, costs and how to uninstall.
 
-### Loading into Supabase (optional)
+## How it works
 
-1. Run `supabase/migrations/0001_health_schema.sql` in the SQL editor.
-2. Create the loader login: `create role health_loader login password '<strong password>' in role health_writer;`
-3. Make sure `health` is **not** listed under *Settings → Data API → Exposed schemas*.
-4. Fill `HEALTH_SUPABASE_PROJECT_REF` and `HEALTH_DATABASE_URL` (as `health_loader`) in `.env`.
-5. Install the driver and load:
+How each piece was designed and why, how the export was mapped without ever printing a health value, and the problems solved along the way: **[docs/design-notes.md](docs/design-notes.md)**.
 
-```powershell
-python -m pip install -r requirements.txt
-python scripts/load_supabase.py               # validates and counts, writes nothing
-python scripts/load_supabase.py --apply       # upsert; logs the run in health.import_runs
+Highlights:
+
+- **Idempotent end to end:** deterministic ids from natural keys; re-running the importer gives byte-identical files; re-loading writes zero rows if nothing changed.
+- **Privacy by construction:** identifiers scrubbed recursively; GPX, profiles and device files never read; scripts print counts only; database errors reported by SQLSTATE only.
+- **Least privilege:** a write-only loader role, a read-only connector role, no superuser or service-role keys in the pipeline, and a guard against writing to the wrong project.
+- **LLM-ready:** a digest you can paste anywhere, or an MCP server with four fixed read-only tools (no free-form SQL) behind a secret path, in read-only transactions with a statement timeout.
+
+## Repository layout
+
+```text
+scripts/
+  inspect_export.py          structure of the export (headers, counts) without values
+  import_mifitness.py        export → data/processed/mi_fitness/*.jsonl
+  weekly_digest.py           JSONL → data/reports/weekly/<week>.md
+  load_supabase.py           JSONL → Supabase schema `health` (validate, or --apply)
+  deploy_connector.py        deploys the MCP connector via the Supabase Management API
+supabase/
+  migrations/0001_health_schema.sql   tables, views, RLS, loader role
+  migrations/0002_health_reader.sql   read-only role for the connector
+  functions/health-mcp/index.ts       read-only MCP server (Edge Function)
+docs/
+  setup-guide.md             step by step with your own data
+  design-notes.md            decisions, data mapping, lessons learned
+data/                        (ignored by Git) private exports, processed data, reports
 ```
-
-## Chat with your data (MCP connector)
-
-`supabase/functions/health-mcp` is a small read-only [MCP](https://modelcontextprotocol.io) server that lets Claude answer questions about the data from any device, e.g. *"did I sleep worse on nights after treadmill workouts?"*.
-
-- Tools: `data_coverage`, `weekly_summary`, `daily_metrics`, `activities`. Fixed queries only, no free-form SQL.
-- Every query runs as `health_reader` (SELECT-only on schema `health`, migration `0002`) in a read-only transaction with a statement timeout.
-- Auth: the endpoint only answers at a secret path token; any other path returns 404.
-
-Deploy (idempotent):
-
-```powershell
-# .env: SUPABASE_ACCESS_TOKEN (personal access token) and HEALTH_SUPABASE_PROJECT_REF
-python scripts/deploy_connector.py   # applies 0002, sets the secret, deploys, smoke-tests
-```
-
-The connector URL is written to `data/private/connector_url.txt`. Add it in claude.ai → Customize → Connectors → *Add custom connector*; it is then available in the mobile apps too.
 
 ## Data model
 
@@ -80,13 +83,18 @@ The connector URL is written to `data/private/connector_url.txt`. Add it in clau
 | `health.activities` | sport × start time | walks, indoor running, strength; duration, distance, HR, training load; manual `incline_pct` and `notes` |
 | `health.import_runs` | load run | counts and skipped rows per load |
 
-Timestamps are stored in UTC. `local_date` uses the record's own timezone when Mi Fitness provides it (15-minute units), otherwise `HEALTH_UTC_OFFSET`. A night of sleep is assigned to the day you wake up.
+Timestamps are stored in UTC. `local_date` uses each record's own timezone when Mi Fitness provides it, otherwise `HEALTH_UTC_OFFSET`. A night of sleep is assigned to the day you wake up.
 
-## Scope
+## Privacy boundary
 
-- **Now:** periodic manual Mi Fitness exports → local ETL → (optional) Supabase → weekly digest.
-- **Now (chat):** Claude reads the data on demand through the MCP connector.
-- **Future ideas:** incremental capture through Android Health Connect for near-real-time data, and OAuth instead of a path token for the connector. See [docs/ingestion-plan.md](docs/ingestion-plan.md).
+- Real exports, normalized records, digests, the connector URL and credentials live under ignored paths: `data/private/`, `data/processed/`, `data/reports/`, `.env`.
+- The `health` schema is not exposed through the Data API, and `anon` / `authenticated` have no privileges.
+- The connector URL works like a password; keep it private.
+
+## Roadmap
+
+- **Today:** periodic manual exports → ETL → Supabase → weekly digest and Claude connector.
+- **Ideas:** incremental capture through Android Health Connect, near-real-time data for the connector, OAuth instead of a path token, a write tool for manual enrichment (e.g. treadmill incline), and a synthetic sample export so anyone can try it without a Mi Band.
 
 ## License
 
