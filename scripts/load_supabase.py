@@ -88,6 +88,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--apply", action="store_true", help="Actually write to the database")
+    parser.add_argument("--allow-synthetic", action="store_true",
+                        help="Allow loading synthetic sample data (never into a database with real data)")
     args = parser.parse_args()
 
     load_env(ROOT / ".env")
@@ -100,6 +102,9 @@ def main() -> None:
         missing = sum(1 for r in rows for c in TABLES[table] if c not in r)
         print(f"  {table}: {len(rows)} rows, {missing} missing fields")
 
+    if manifest.get("synthetic") and not args.allow_synthetic:
+        parser.error("This is synthetic sample data. Refusing to load it; pass --allow-synthetic "
+                     "only for a database that holds no real data.")
     if not args.apply:
         print("Validation only: nothing written. Use --apply to upsert.")
         return

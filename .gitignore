@@ -8,6 +8,7 @@ data/private/
 data/raw/
 data/processed/
 data/reports/
+data/sample/
 *_MiFitness_*
 # Source code is always public (Git on Windows matches case-insensitively)
 !scripts/**/*.py

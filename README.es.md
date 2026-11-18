@@ -46,6 +46,8 @@ python scripts/import_mifitness.py    # normaliza (se puede repetir sin problema
 python scripts/weekly_digest.py       # → data/reports/weekly/<semana ISO>.md
 ```
 
+**¿No tenés una Mi Band? Probalo con datos sintéticos:** `python scripts/refresh.py --sample` genera un export falso pero realista (8 semanas, con patrones para que un LLM los encuentre), lo normaliza y escribe un digest en `data/reports/sample/`. Los datos sintéticos quedan marcados y en carpetas separadas: nunca se pueden mezclar con datos reales ni llegar a tu base por accidente.
+
 La guía también explica cómo actualizar con exports nuevos, los problemas comunes, los costos y cómo desinstalar.
 
 ## Cómo funciona
@@ -68,6 +70,8 @@ scripts/
   weekly_digest.py           JSONL → data/reports/weekly/<semana>.md
   load_supabase.py           JSONL → schema `health` de Supabase (valida, o --apply)
   deploy_connector.py        publica el conector MCP con la Management API de Supabase
+  refresh.py                 todo el pipeline con un solo comando (o --sample con datos sintéticos)
+  make_sample_export.py      export sintético de Mi Fitness para probarlo sin una Mi Band
 supabase/
   migrations/0001_health_schema.sql   tablas, vistas, RLS, usuario de carga
   migrations/0002_health_reader.sql   usuario de solo lectura para el conector
@@ -98,7 +102,7 @@ Las horas se guardan en UTC. `local_date` usa la zona horaria de cada registro c
 ## Hoja de ruta
 
 - **Hoy:** exports manuales periódicos → ETL → Supabase → digest semanal y conector de Claude.
-- **Ideas:** captura incremental con Android Health Connect, datos casi en tiempo real para el conector, OAuth en lugar de la ruta secreta, una herramienta de escritura para cargar datos manuales (por ejemplo, la inclinación de la cinta) y un export de ejemplo con datos sintéticos para probarlo sin una Mi Band.
+- **Ideas:** captura incremental con Android Health Connect, datos casi en tiempo real para el conector, OAuth en lugar de la ruta secreta y una herramienta de escritura para cargar datos manuales (por ejemplo, la inclinación de la cinta).
 
 ## Licencia
 

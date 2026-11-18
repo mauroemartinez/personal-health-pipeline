@@ -56,6 +56,13 @@ El export se mapeó sin mostrar nunca un valor biométrico ni un identificador:
 - El contexto personal para el LLM sale de `HEALTH_DIGEST_CONTEXT` en el `.env`, nunca del código.
 - La salida queda siempre dentro de `data/reports/`, que Git ignora.
 
+### Datos sintéticos de ejemplo (`scripts/make_sample_export.py`)
+
+- Genera un export con los mismos nombres de archivo, columnas y payloads JSON que el real, incluidos identificadores de dispositivo falsos, para que se vea funcionar la limpieza.
+- Es coherente por dentro: los pasos por hora suman los totales diarios, y los marcadores de intensidad coinciden con los minutos activos.
+- Trae patrones para que un LLM los descubra: después de los días de entrenamiento suele haber más sueño profundo, después de los días de mucho estrés se duerme peor, el peso baja de a poco y el pulso en reposo mejora un poco.
+- Es determinístico para una misma semilla. Viaja con una marca, `SYNTHETIC_SAMPLE.txt`: el importer pone `synthetic: true` en el manifest y se niega a escribir en la carpeta de salida real, la carga se niega a subirlo sin `--allow-synthetic`, y el digest muestra un aviso.
+
 ## 4. Almacenamiento y modelo de acceso (Supabase)
 
 Todo vive en un schema independiente, `health`. Las migraciones crean objetos solo adentro de ese schema, más tres roles, así que puede ir en un proyecto nuevo o en uno existente, y se puede exportar o borrar por separado.
@@ -115,6 +122,7 @@ Diseño:
 5. Revisiones independientes antes de publicar: una de privacidad y requisitos, otra de corrección del código y del SQL. Lo que encontraron se corrigió antes del primer push.
 6. Datos cargados en Supabase como `health_loader`; se verificó que volver a cargar escribe cero filas.
 7. Conector MCP de solo lectura (`0002_health_reader.sql`, `health-mcp`, `deploy_connector.py`), publicado y probado.
+8. Pipeline con un solo comando (`refresh.py`) y un export de ejemplo con datos sintéticos, con protecciones para que no se mezcle con datos reales (`make_sample_export.py`).
 
 ## 8. Limitaciones conocidas
 
@@ -129,4 +137,3 @@ Diseño:
 - **Datos casi en tiempo real,** para que el conector siempre responda con los datos de hoy.
 - **OAuth para el conector** en lugar de un token secreto en la ruta.
 - **Una herramienta de escritura para cargar datos a mano** (por ejemplo, "el entrenamiento en cinta de ayer fue al 8% de inclinación"), con su propio rol muy acotado.
-- **Un export de ejemplo con datos sintéticos,** para que cualquiera pruebe el pipeline completo sin una Mi Band.

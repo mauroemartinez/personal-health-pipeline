@@ -19,6 +19,8 @@ Después: [mantenerlo actualizado](#7-mantenerlo-actualizado) · [problemas comu
 
 Todo lo personal queda en tu compu o en tu propio proyecto de Supabase. Ningún paso de esta guía manda tus datos a este repositorio.
 
+> **¿Todavía no tenés el export?** Cloná el repo (etapa 2) y corré `python scripts/refresh.py --sample`. Genera ocho semanas de datos sintéticos realistas en el formato de Mi Fitness, los normaliza en `data/processed/sample/` y escribe un digest en `data/reports/sample/`. Los datos sintéticos llevan una marca: el importer se niega a escribirlos en tu carpeta de salida real, y la carga se niega a subirlos salvo que le pases `--allow-synthetic` (solo para una base sin datos reales).
+
 ---
 
 ## 1. Conseguí tus datos
@@ -281,11 +283,17 @@ Tratá la URL del conector como una contraseña: quien la tenga puede leer tus d
 Los datos están tan frescos como tu último export. Cada una o dos semanas:
 
 1. Pedí un export nuevo (etapa 1) y descomprimilo en `data/private/mi_fitness_export/`. Podés dejar los anteriores al lado; de cada registro gana el valor más nuevo.
-2. Corré:
+2. Corré todo el pipeline con un solo comando:
+
+   ```bash
+   python scripts/refresh.py
+   ```
+
+   Normaliza, carga en Supabase (solo si `HEALTH_DATABASE_URL` está configurada; `--skip-load` para saltearlo) y escribe el digest de la última semana completa (`--week 2026-W46` para otra). Frena en el primer paso que falle. Los tres comandos de base siguen funcionando por separado:
 
    ```bash
    python scripts/import_mifitness.py
-   python scripts/load_supabase.py --apply     # si usás Supabase
+   python scripts/load_supabase.py --apply
    python scripts/weekly_digest.py
    ```
 

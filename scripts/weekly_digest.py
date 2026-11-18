@@ -173,7 +173,7 @@ SUMMARY_ROWS: list[tuple[str, str, int, str, str]] = [
 
 
 def render(iso_week: str, baseline_weeks: int, daily: dict[str, dict[str, float]],
-           activities: list[dict[str, Any]]) -> tuple[str, int]:
+           activities: list[dict[str, Any]], synthetic: bool = False) -> tuple[str, int]:
     start, end = week_bounds(iso_week)
     week_days = days_between(start, end)
     base_start = start - timedelta(weeks=baseline_weeks)
@@ -184,6 +184,9 @@ def render(iso_week: str, baseline_weeks: int, daily: dict[str, dict[str, float]
     w = out.append
     w(f"# Digest semanal de salud — {iso_week}")
     w("")
+    if synthetic:
+        w("> **Datos sintéticos de ejemplo** (generados con `scripts/make_sample_export.py`). No son datos reales.")
+        w("")
     w(f"Período: **{start.isoformat()} → {end.isoformat()}** · Línea base: {baseline_weeks} semanas previas "
       f"({base_start.isoformat()} → {(start - timedelta(days=1)).isoformat()}) · Fuente: export Mi Fitness (Mi Band).")
     w("")
@@ -315,7 +318,9 @@ def main() -> None:
     if not daily:
         parser.error(f"No normalized data found in {args.input}. Run scripts/import_mifitness.py first.")
     week = args.week or (latest_week_with_data(daily) if args.latest else last_complete_week(date.today()))
-    markdown, days_with_data = render(week, args.baseline_weeks, daily, activities)
+    manifest_path = args.input / "manifest.json"
+    synthetic = manifest_path.exists() and bool(json.loads(manifest_path.read_text(encoding="utf-8")).get("synthetic"))
+    markdown, days_with_data = render(week, args.baseline_weeks, daily, activities, synthetic=synthetic)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{week}.md"

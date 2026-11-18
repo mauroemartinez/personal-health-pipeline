@@ -46,6 +46,8 @@ python scripts/import_mifitness.py    # normalize (safe to re-run)
 python scripts/weekly_digest.py       # → data/reports/weekly/<ISO week>.md
 ```
 
+**No Mi Band? Try it on synthetic data:** `python scripts/refresh.py --sample` generates a realistic fake export (8 weeks, with patterns for an LLM to find), normalizes it and writes a digest under `data/reports/sample/`. Synthetic data is marked and kept in separate folders: it can never mix with real data or reach your database by accident.
+
 The guide also covers updating with new exports, troubleshooting, costs and how to uninstall.
 
 ## How it works
@@ -68,6 +70,8 @@ scripts/
   weekly_digest.py           JSONL → data/reports/weekly/<week>.md
   load_supabase.py           JSONL → Supabase schema `health` (validate, or --apply)
   deploy_connector.py        deploys the MCP connector via the Supabase Management API
+  refresh.py                 whole pipeline in one command (or --sample for synthetic data)
+  make_sample_export.py      synthetic Mi Fitness export for trying it without a Mi Band
 supabase/
   migrations/0001_health_schema.sql   tables, views, RLS, loader role
   migrations/0002_health_reader.sql   read-only role for the connector
@@ -98,7 +102,7 @@ Timestamps are stored in UTC. `local_date` uses each record's own timezone when 
 ## Roadmap
 
 - **Today:** periodic manual exports → ETL → Supabase → weekly digest and Claude connector.
-- **Ideas:** incremental capture through Android Health Connect, near-real-time data for the connector, OAuth instead of a path token, a write tool for manual enrichment (e.g. treadmill incline), and a synthetic sample export so anyone can try it without a Mi Band.
+- **Ideas:** incremental capture through Android Health Connect, near-real-time data for the connector, OAuth instead of a path token, and a write tool for manual enrichment (e.g. treadmill incline).
 
 ## License
 

@@ -56,6 +56,13 @@ The export was mapped without ever printing a biometric value or an identifier:
 - Personal context for the LLM comes from `HEALTH_DIGEST_CONTEXT` in `.env`, never from the code.
 - Output is forced under `data/reports/`, which Git ignores.
 
+### Synthetic sample data (`scripts/make_sample_export.py`)
+
+- Generates an export with the same file names, columns and JSON payloads as the real one, including fake device identifiers, so the scrubbing can be seen working.
+- Internally consistent: hourly steps add up to the daily totals, and intensity markers match active minutes.
+- Built-in patterns for an LLM to discover: workout days tend to be followed by more deep sleep, high-stress days by worse sleep, weight drifts down and resting HR improves slightly.
+- Deterministic for a given seed. A `SYNTHETIC_SAMPLE.txt` marker travels with it: the importer flags `synthetic: true` in the manifest and refuses to write into the real output folder, the loader refuses to upload it without `--allow-synthetic`, and the digest prints a banner.
+
 ## 4. Storage and access model (Supabase)
 
 Everything lives in a self-contained `health` schema. The migrations create objects only inside it plus three roles, so it can live in a new or an existing project and can be dumped or dropped independently.
@@ -115,6 +122,7 @@ Design:
 5. Independent reviews before publishing: one for privacy and requirements, one for code and SQL correctness. Their findings were fixed before the first push.
 6. Data loaded into Supabase as `health_loader`; re-load verified to write zero rows.
 7. Read-only MCP connector (`0002_health_reader.sql`, `health-mcp`, `deploy_connector.py`), deployed and smoke-tested.
+8. One-command pipeline (`refresh.py`) and a synthetic sample export with guards against mixing it with real data (`make_sample_export.py`).
 
 ## 8. Known gaps
 
@@ -129,4 +137,3 @@ Design:
 - **Near-real-time ingestion,** so the connector always answers with today's data.
 - **OAuth for the connector** instead of a secret path token.
 - **A write tool for manual enrichment** (e.g. "yesterday's treadmill session was at 8% incline"), with its own narrowly scoped role.
-- **Synthetic sample export,** so anyone can try the full pipeline without a Mi Band.

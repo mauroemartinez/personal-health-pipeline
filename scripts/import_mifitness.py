@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = ROOT / "data" / "private" / "mi_fitness_export"
 DEFAULT_OUTPUT = ROOT / "data" / "processed" / "mi_fitness"
 SOURCE = "mi_fitness"
+SYNTHETIC_MARKER = "SYNTHETIC_SAMPLE.txt"  # written by make_sample_export.py
 SCHEMA_VERSION = 2
 
 # Keys that identify the account or a device. Removed recursively from payloads.
@@ -334,6 +335,10 @@ def main() -> None:
     ensure_private(args.output)
 
     tables, manifest = normalize(args.input)
+    manifest["synthetic"] = any(args.input.rglob(SYNTHETIC_MARKER))
+    if manifest["synthetic"] and args.output.resolve() == DEFAULT_OUTPUT.resolve():
+        parser.error("Input contains synthetic sample data; it must not mix with your real output. "
+                     "Use --output data/processed/sample (scripts/refresh.py --sample does this).")
     if not any(manifest["counts"].values()) and not args.allow_empty:
         parser.error("No records found (is the export still zipped, or in another folder?). "
                      "Existing output was left untouched; pass --allow-empty to overwrite anyway.")
