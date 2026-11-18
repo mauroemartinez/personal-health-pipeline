@@ -4,11 +4,13 @@ Real data (default):
   1. import_mifitness.py   data/private/mi_fitness_export/ → data/processed/mi_fitness/
   2. load_supabase.py      --apply, only if HEALTH_DATABASE_URL is set in .env (skip with --skip-load)
   3. weekly_digest.py      → data/reports/weekly/<ISO week>.md
+  4. dashboard.py          → data/reports/dashboard.html
 
 Try it without a Mi Band (--sample):
   1. make_sample_export.py synthetic export → data/sample/mi_fitness_export/
   2. import_mifitness.py   → data/processed/sample/
   3. weekly_digest.py      → data/reports/sample/<ISO week>.md
+  4. dashboard.py          → data/reports/sample/dashboard.html
   Synthetic data is never loaded into Supabase by this script.
 
 Stops at the first failing step. Each step prints counts and paths only.
@@ -49,28 +51,32 @@ def main() -> None:
     parser.add_argument("--sample", action="store_true", help="Run end to end on synthetic data instead of your export")
     parser.add_argument("--skip-load", action="store_true", help="Do not upload to Supabase")
     parser.add_argument("--week", help="ISO week for the digest, e.g. 2026-W46 (default: last complete week)")
+    parser.add_argument("--lang", choices=("es", "en"), default="es", help="Dashboard language (default: es)")
     args = parser.parse_args()
     load_env(ROOT / ".env")
     digest_week = ["--week", args.week] if args.week else []
 
     if args.sample:
-        run("1/3 Generate synthetic export", "make_sample_export.py")
-        run("2/3 Normalize", "import_mifitness.py",
+        run("1/4 Generate synthetic export", "make_sample_export.py")
+        run("2/4 Normalize", "import_mifitness.py",
             "--input", "data/sample/mi_fitness_export", "--output", "data/processed/sample")
-        run("3/3 Weekly digest", "weekly_digest.py",
+        run("3/4 Weekly digest", "weekly_digest.py",
             "--input", "data/processed/sample", "--output-dir", "data/reports/sample", *digest_week)
-        print("\nDone (synthetic data). Open the digest under data/reports/sample/.")
+        run("4/4 Dashboard", "dashboard.py", "--lang", args.lang,
+            "--input", "data/processed/sample", "--output", "data/reports/sample/dashboard.html")
+        print("\nDone (synthetic data). Open data/reports/sample/dashboard.html in your browser.")
         return
 
-    run("1/3 Normalize", "import_mifitness.py")
+    run("1/4 Normalize", "import_mifitness.py")
     if args.skip_load:
-        print("\n== 2/3 Load into Supabase\n  skipped (--skip-load)")
+        print("\n== 2/4 Load into Supabase\n  skipped (--skip-load)", flush=True)
     elif not os.environ.get("HEALTH_DATABASE_URL"):
-        print("\n== 2/3 Load into Supabase\n  skipped (HEALTH_DATABASE_URL not set in .env)")
+        print("\n== 2/4 Load into Supabase\n  skipped (HEALTH_DATABASE_URL not set in .env)", flush=True)
     else:
-        run("2/3 Load into Supabase", "load_supabase.py", "--apply")
-    run("3/3 Weekly digest", "weekly_digest.py", *digest_week)
-    print("\nDone.")
+        run("2/4 Load into Supabase", "load_supabase.py", "--apply")
+    run("3/4 Weekly digest", "weekly_digest.py", *digest_week)
+    run("4/4 Dashboard", "dashboard.py", "--lang", args.lang)
+    print("\nDone. Open data/reports/dashboard.html in your browser.")
 
 
 if __name__ == "__main__":

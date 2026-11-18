@@ -136,6 +136,14 @@ The file is written to `data/reports/weekly/<ISO week>.md` (ignored by Git). It 
 
 Paste it into any chat assistant (Claude, ChatGPT, Gemini…) and ask away. Days without data are left out of averages, never counted as zeros. **The digest text is in Spanish.** Labels live in `scripts/weekly_digest.py` if you want to translate them.
 
+### Dashboard
+
+```bash
+python scripts/dashboard.py             # Spanish labels; --lang en for English
+```
+
+It writes `data/reports/dashboard.html`: one file, no dependencies, works offline and on a phone. It has filters (all, last 4 weeks, last 2 weeks), KPIs against the previous period, sleep stages, stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. If your history starts the day you got the band, set `HEALTH_CALIBRATION_DAYS=4` in `.env` to shade those first days, when wear is partial and the band is still calibrating.
+
 > If the digest is all you need, you can stop here.
 
 ---
@@ -291,7 +299,7 @@ Data is as fresh as your last export. Every week or two:
    python scripts/refresh.py
    ```
 
-   It normalizes, loads into Supabase (only if `HEALTH_DATABASE_URL` is set; `--skip-load` to skip it) and writes the digest for the last complete week (`--week 2026-W46` for another). It stops at the first step that fails. The three underlying commands still work on their own:
+   It normalizes, loads into Supabase (only if `HEALTH_DATABASE_URL` is set; `--skip-load` to skip it) writes the digest for the last complete week (`--week 2026-W46` for another) and rebuilds the dashboard. It stops at the first step that fails. The three underlying commands still work on their own:
 
    ```bash
    python scripts/import_mifitness.py

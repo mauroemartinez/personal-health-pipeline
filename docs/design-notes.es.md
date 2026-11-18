@@ -63,6 +63,13 @@ El export se mapeó sin mostrar nunca un valor biométrico ni un identificador:
 - Trae patrones para que un LLM los descubra: después de los días de entrenamiento suele haber más sueño profundo, después de los días de mucho estrés se duerme peor, el peso baja de a poco y el pulso en reposo mejora un poco.
 - Es determinístico para una misma semilla. Viaja con una marca, `SYNTHETIC_SAMPLE.txt`: el importer pone `synthetic: true` en el manifest y se niega a escribir en la carpeta de salida real, la carga se niega a subirlo sin `--allow-synthetic`, y el digest muestra un aviso.
 
+### Dashboard (`scripts/dashboard.py`)
+
+- Un solo archivo HTML autocontenido: los datos van embebidos como JSON y los gráficos se dibujan en SVG sin librerías, así que funciona sin conexión y nunca pide nada a internet con tus datos adentro.
+- Está armado con reglas explícitas de visualización: la paleta (tres colores, en modo claro y oscuro) se validó con un script para que se distinga con daltonismo, en lugar de elegirla a ojo; no hay gráficos con dos ejes (estrés y sueño van en un gráfico de dispersión, no en dos líneas con dos escalas); los trazos son finos, las líneas de grilla son finas y continuas, y cada gráfico tiene tooltip con el mouse o el teclado y una tabla con los mismos valores.
+- La forma de "énfasis" para los pasos: los días con entrenamiento en el color de acento y el resto en gris, en lugar de una escala de colores por valor.
+- Protección de privacidad: el HTML se tiene que escribir dentro de `data/reports/`, y una captura de datos reales no se puede guardar fuera de esa carpeta. Las imágenes del README salen de datos sintéticos.
+
 ## 4. Almacenamiento y modelo de acceso (Supabase)
 
 Todo vive en un schema independiente, `health`. Las migraciones crean objetos solo adentro de ese schema, más tres roles, así que puede ir en un proyecto nuevo o en uno existente, y se puede exportar o borrar por separado.
@@ -123,6 +130,7 @@ Diseño:
 6. Datos cargados en Supabase como `health_loader`; se verificó que volver a cargar escribe cero filas.
 7. Conector MCP de solo lectura (`0002_health_reader.sql`, `health-mcp`, `deploy_connector.py`), publicado y probado.
 8. Pipeline con un solo comando (`refresh.py`) y un export de ejemplo con datos sintéticos, con protecciones para que no se mezcle con datos reales (`make_sample_export.py`).
+9. Dashboard HTML autocontenido (`dashboard.py`) y la imagen de arquitectura del README.
 
 ## 8. Limitaciones conocidas
 

@@ -47,6 +47,14 @@ data/processed/mi_fitness/*.jsonl        privado, Git lo ignora
              Edge Function `health-mcp`  servidor MCP de solo lectura ──► conector personalizado de Claude (web y celular)
 ```
 
+## Dashboard
+
+<p align="center">
+  <img src="assets/dashboard-es.png" width="900" alt="Dashboard de salud con datos sintéticos: indicadores, etapas del sueño por noche, estrés del día contra el puntaje de sueño de esa noche y pulso en reposo">
+</p>
+
+`python scripts/dashboard.py` arma un único archivo HTML, sin dependencias, que se abre en cualquier navegador, incluso en el celular. Muestra indicadores contra el período anterior, las etapas del sueño por noche, el estrés del día contra el sueño de esa noche, el pulso en reposo, los pasos con los días de entrenamiento resaltados, el peso y tablas semana a semana y día por día. Tiene tooltips al pasar el mouse o con el teclado, modo claro y oscuro, y una paleta validada para personas con daltonismo. La imagen de arriba usa datos sintéticos; tu dashboard queda en `data/reports/` (Git lo ignora).
+
 ## Usalo con tus propios datos
 
 **→ Guía completa paso a paso: [docs/setup-guide.es.md](docs/setup-guide.es.md)**
@@ -55,7 +63,7 @@ data/processed/mi_fitness/*.jsonl        privado, Git lo ignora
 |---|---|---|
 | 1. Pedirle tu export a Xiaomi | Tu historial en archivos CSV | unos minutos, y después esperar el mail |
 | 2–3. Clonar, configurar y normalizar | JSONL limpio, sin identificadores | ~10 min |
-| 4. Digest semanal | Un resumen en Markdown para cualquier asistente | 1 comando |
+| 4. Digest semanal y dashboard | Un resumen en Markdown para cualquier asistente, y un dashboard en HTML | 1 comando cada uno |
 | 5. Supabase *(opcional)* | Tus datos en un schema privado de Postgres | ~15 min, plan gratis |
 | 6. Conector de Claude *(opcional)* | Charlar con tus datos desde la web o el celular | ~10 min |
 
@@ -68,6 +76,7 @@ cp .env.example .env                  # Windows: copy .env.example .env  → com
 # descomprimí tu export de Mi Fitness en data/private/mi_fitness_export/
 python scripts/import_mifitness.py    # normaliza (se puede repetir sin problema)
 python scripts/weekly_digest.py       # → data/reports/weekly/<semana ISO>.md
+python scripts/dashboard.py           # → data/reports/dashboard.html
 ```
 
 **¿No tenés una Mi Band? Probalo con datos sintéticos:** `python scripts/refresh.py --sample` genera un export falso pero realista (8 semanas, con patrones para que un LLM los encuentre), lo normaliza y escribe un digest en `data/reports/sample/`. Los datos sintéticos quedan marcados y en carpetas separadas: nunca se pueden mezclar con datos reales ni llegar a tu base por accidente.
@@ -92,6 +101,7 @@ scripts/
   inspect_export.py          estructura del export (encabezados, conteos) sin valores
   import_mifitness.py        export → data/processed/mi_fitness/*.jsonl
   weekly_digest.py           JSONL → data/reports/weekly/<semana>.md
+  dashboard.py               JSONL → data/reports/dashboard.html (un solo archivo, sin dependencias)
   load_supabase.py           JSONL → schema `health` de Supabase (valida, o --apply)
   deploy_connector.py        publica el conector MCP con la Management API de Supabase
   refresh.py                 todo el pipeline con un solo comando (o --sample con datos sintéticos)
@@ -103,7 +113,7 @@ supabase/
 docs/
   setup-guide(.es).md        paso a paso con tus propios datos
   design-notes(.es).md       decisiones, mapeo de datos, lecciones aprendidas
-assets/                      imagen de arquitectura (EN / ES) y su generador
+assets/                      imagen de arquitectura y capturas del dashboard (EN / ES, datos sintéticos)
 data/                        (Git lo ignora) exports privados, datos procesados, reportes
 ```
 

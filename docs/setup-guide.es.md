@@ -136,6 +136,14 @@ El archivo se escribe en `data/reports/weekly/<semana ISO>.md` (Git lo ignora). 
 
 Pegalo en cualquier asistente (Claude, ChatGPT, Gemini…) y preguntá lo que quieras. Los días sin datos se dejan afuera de los promedios; nunca cuentan como cero. **El texto del digest está en español.** Las etiquetas están en `scripts/weekly_digest.py`, por si las querés traducir.
 
+### Dashboard
+
+```bash
+python scripts/dashboard.py             # en español; --lang en para inglés
+```
+
+Escribe `data/reports/dashboard.html`: un solo archivo, sin dependencias, que funciona sin conexión y en el celular. Tiene filtros (todo, últimas 4 semanas, últimas 2 semanas), indicadores contra el período anterior, etapas del sueño, estrés contra el sueño de esa noche, pulso en reposo, pasos con los días de entrenamiento resaltados, peso y tablas semana a semana y día por día. Si tu historial empieza el día que te pusiste la banda, poné `HEALTH_CALIBRATION_DAYS=4` en el `.env` para sombrear esos primeros días, cuando la banda todavía se está calibrando y quizás no la usaste todo el día.
+
 > Si con el digest te alcanza, podés frenar acá.
 
 ---
@@ -291,7 +299,7 @@ Los datos están tan frescos como tu último export. Cada una o dos semanas:
    python scripts/refresh.py
    ```
 
-   Normaliza, carga en Supabase (solo si `HEALTH_DATABASE_URL` está configurada; `--skip-load` para saltearlo) y escribe el digest de la última semana completa (`--week 2026-W46` para otra). Frena en el primer paso que falle. Los tres comandos de base siguen funcionando por separado:
+   Normaliza, carga en Supabase (solo si `HEALTH_DATABASE_URL` está configurada; `--skip-load` para saltearlo) escribe el digest de la última semana completa (`--week 2026-W46` para otra) y actualiza el dashboard. Frena en el primer paso que falle. Los tres comandos de base siguen funcionando por separado:
 
    ```bash
    python scripts/import_mifitness.py

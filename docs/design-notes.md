@@ -63,6 +63,13 @@ The export was mapped without ever printing a biometric value or an identifier:
 - Built-in patterns for an LLM to discover: workout days tend to be followed by more deep sleep, high-stress days by worse sleep, weight drifts down and resting HR improves slightly.
 - Deterministic for a given seed. A `SYNTHETIC_SAMPLE.txt` marker travels with it: the importer flags `synthetic: true` in the manifest and refuses to write into the real output folder, the loader refuses to upload it without `--allow-synthetic`, and the digest prints a banner.
 
+### Dashboard (`scripts/dashboard.py`)
+
+- One self-contained HTML file: data inlined as JSON, charts drawn as plain SVG with no libraries, so it works offline and never fetches anything with your data in it.
+- Built following explicit data-visualization rules: the palette (three categorical slots, light and dark) was validated with a script for colorblind separation instead of eyeballed; there are no dual-axis charts (stress and sleep are a scatter, not two lines on two scales); marks are thin, gridlines are solid hairlines, and every chart has a hover or keyboard tooltip plus a table with the same values.
+- The "emphasis" form for steps: workout days in the accent color, the rest in gray, instead of a value ramp.
+- Privacy guard: the HTML must be written under `data/reports/`, and a screenshot of real data can't be written outside it. The README pictures come from synthetic data.
+
 ## 4. Storage and access model (Supabase)
 
 Everything lives in a self-contained `health` schema. The migrations create objects only inside it plus three roles, so it can live in a new or an existing project and can be dumped or dropped independently.
@@ -123,6 +130,7 @@ Design:
 6. Data loaded into Supabase as `health_loader`; re-load verified to write zero rows.
 7. Read-only MCP connector (`0002_health_reader.sql`, `health-mcp`, `deploy_connector.py`), deployed and smoke-tested.
 8. One-command pipeline (`refresh.py`) and a synthetic sample export with guards against mixing it with real data (`make_sample_export.py`).
+9. Self-contained HTML dashboard (`dashboard.py`) and the architecture image for the README.
 
 ## 8. Known gaps
 
