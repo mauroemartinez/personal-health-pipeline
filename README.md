@@ -1,4 +1,8 @@
 # Personal Health Data Pipeline
+<p>
+  <a href="README.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/en-active.svg" alt="English" height="30"></a>
+  <a href="README.es.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/es.svg" alt="Leer en español" height="30"></a>
+</p>
 
 Turn your **Xiaomi Mi Band / Mi Fitness** history into data you can actually ask questions about: a private, idempotent ETL, a locked-down Postgres schema, weekly Markdown digests for any LLM, and a read-only **MCP connector** so Claude can answer questions like *"did I sleep worse on nights after treadmill workouts?"* from the web or your phone.
 
@@ -69,8 +73,8 @@ supabase/
   migrations/0002_health_reader.sql   read-only role for the connector
   functions/health-mcp/index.ts       read-only MCP server (Edge Function)
 docs/
-  setup-guide.md             step by step with your own data
-  design-notes.md            decisions, data mapping, lessons learned
+  setup-guide(.es).md        step by step with your own data (English / Spanish)
+  design-notes(.es).md       decisions, data mapping, lessons learned (English / Spanish)
 data/                        (ignored by Git) private exports, processed data, reports
 ```
 

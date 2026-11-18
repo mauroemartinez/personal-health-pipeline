@@ -1,4 +1,8 @@
 # Setup guide: from your Mi Fitness export to chatting with Claude about your data
+<p>
+  <a href="setup-guide.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/en-active.svg" alt="English" height="30"></a>
+  <a href="setup-guide.es.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/es.svg" alt="Leer en español" height="30"></a>
+</p>
 
 This guide takes you from zero to the full pipeline with **your own data**. Each stage is useful on its own, so you can stop wherever you want:
 

@@ -1,4 +1,8 @@
 # Design notes: how this pipeline was built and why
+<p>
+  <a href="design-notes.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/en-active.svg" alt="English" height="30"></a>
+  <a href="design-notes.es.md"><img src="https://raw.githubusercontent.com/mauroemartinez/mauroemartinez/main/assets/lang/es.svg" alt="Leer en español" height="30"></a>
+</p>
 
 Companion to the [setup guide](setup-guide.md). This file explains the decisions behind each piece, how the data was explored without exposing it, and the problems found along the way, so the same approach can be reused or extended.
 
