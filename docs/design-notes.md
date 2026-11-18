@@ -133,7 +133,7 @@ Design:
 
 ## 9. Future ideas
 
-- **Incremental capture through Android Health Connect,** reusing the same tables and natural keys so exports and incremental data merge without duplicates. Health Connect has no stress record type, so stress would keep coming from exports.
+- **Automatic sync for Android 14 and later.** Health Connect is part of the OS from Android 14, so an on-phone sync could replace batch exports for those users, while the export path stays for Android 13 and lower. **Incremental capture through Health Connect** would reuse the same tables and natural keys so exports and incremental data merge without duplicates. Health Connect has no stress record type, so stress would keep coming from exports.
 - **Near-real-time ingestion,** so the connector always answers with today's data.
 - **OAuth for the connector** instead of a secret path token.
 - **A write tool for manual enrichment** (e.g. "yesterday's treadmill session was at 8% incline"), with its own narrowly scoped role.

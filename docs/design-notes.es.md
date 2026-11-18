@@ -133,7 +133,7 @@ Diseño:
 
 ## 9. Ideas a futuro
 
-- **Captura incremental con Android Health Connect,** reutilizando las mismas tablas y claves naturales para que los exports y los datos incrementales se combinen sin duplicados. Health Connect no tiene un tipo de dato para el estrés, así que el estrés seguiría saliendo de los exports.
+- **Sincronización automática para Android 14 en adelante.** Desde Android 14, Health Connect es parte del sistema, así que una sincronización desde el celular podría reemplazar los exports por lotes para esos usuarios, mientras el camino por export queda para Android 13 o anterior. **La captura incremental con Health Connect** reutilizaría las mismas tablas y claves naturales para que los exports y los datos incrementales se combinen sin duplicados. Health Connect no tiene un tipo de dato para el estrés, así que el estrés seguiría saliendo de los exports.
 - **Datos casi en tiempo real,** para que el conector siempre responda con los datos de hoy.
 - **OAuth para el conector** en lugar de un token secreto en la ruta.
 - **Una herramienta de escritura para cargar datos a mano** (por ejemplo, "el entrenamiento en cinta de ayer fue al 8% de inclinación"), con su propio rol muy acotado.

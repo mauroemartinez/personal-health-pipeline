@@ -8,6 +8,30 @@ Turn your **Xiaomi Mi Band / Mi Fitness** history into data you can actually ask
 
 Public code, private data: every real record stays on your machine or in your own Supabase project.
 
+## From your wrist to Claude
+
+<p align="center">
+  <img src="assets/architecture-en.png" width="900" alt="Personal health data pipeline: your activity, Mi Band, phone, Xiaomi cloud, Python ETL, private Supabase database and Claude">
+</p>
+
+<details>
+<summary><b>Hop by hop</b></summary>
+
+| Hop | How | Automatic? | Latency |
+|---|---|---|---|
+| Your activity → Mi Band | Optical heart-rate sensor and accelerometer. Stress and sleep stages are estimated by Xiaomi's algorithms. | yes | continuous |
+| Mi Band → phone | Bluetooth Low Energy, through the Mi Fitness app | yes, when the app syncs | minutes |
+| Phone → Xiaomi cloud | Mi Fitness syncs to your Xiaomi account | yes | minutes |
+| Xiaomi cloud → this repo | Account data export: CSV files in a password-protected ZIP, delivered by email | **no, manual** | days (Xiaomi quotes up to ~15 business days) |
+| Export → Supabase | `scripts/refresh.py`: normalize, scrub identifiers, upsert | one command | seconds |
+| Supabase → you | Weekly Markdown digest, or Claude querying the data live through the MCP connector while you chat | on demand | seconds |
+
+</details>
+
+The only slow, manual hop is the export, and that is on purpose: **this export-based path works with any phone, including Android 13 and lower.** On Android 14 and later, Health Connect is built into the system, so the export could be replaced by automatic background sync, with no batch step. That is the next planned stage, not built yet (see [Roadmap](#roadmap)).
+
+Inside this repo:
+
 ```text
 Mi Fitness account export (CSV, requested at account.xiaomi.com)
         │  scripts/import_mifitness.py   normalize · scrub identifiers · idempotent
@@ -79,6 +103,7 @@ supabase/
 docs/
   setup-guide(.es).md        step by step with your own data (English / Spanish)
   design-notes(.es).md       decisions, data mapping, lessons learned (English / Spanish)
+assets/                      architecture image (EN / ES) and its generator
 data/                        (ignored by Git) private exports, processed data, reports
 ```
 
@@ -102,7 +127,8 @@ Timestamps are stored in UTC. `local_date` uses each record's own timezone when 
 ## Roadmap
 
 - **Today:** periodic manual exports → ETL → Supabase → weekly digest and Claude connector.
-- **Ideas:** incremental capture through Android Health Connect, near-real-time data for the connector, OAuth instead of a path token, and a write tool for manual enrichment (e.g. treadmill incline).
+- **Next, for Android 14 and later:** automatic sync through Health Connect instead of batch exports, so the connector always answers with near-real-time data. The export path stays for Android 13 and lower.
+- **Ideas:** OAuth instead of a path token for the connector, and a write tool for manual enrichment (e.g. treadmill incline).
 
 ## License
 

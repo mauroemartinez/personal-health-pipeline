@@ -27,6 +27,8 @@ Todo lo personal queda en tu compu o en tu propio proyecto de Supabase. Ningún 
 
 La fuente es el **export oficial de datos de la cuenta de Xiaomi**. Cubre los dispositivos que sincronizan con la app Mi Fitness, como las Xiaomi Smart Band y los relojes Xiaomi. Solo se soporta este formato de export.
 
+> **¿Por qué un export y no una sincronización automática?** El export funciona con cualquier celular, incluso con Android 13 o anterior. Desde Android 14, Health Connect viene integrado en el sistema, y eso hace posible sincronizar automáticamente en segundo plano, sin pasos por lotes. Ese camino está planeado, todavía no está construido.
+
 1. Entrá a **https://account.xiaomi.com** con la cuenta que usás en Mi Fitness.
 2. Andá a **Privacy → Manage your data → Mi Fitness** y tocá **Download**.
 3. Seguí los pasos para asociar un email. Los nombres de los menús cambian cada tanto; mirá el [artículo de soporte de Xiaomi](https://www.mi.com/ph/support/article/KA-11566).

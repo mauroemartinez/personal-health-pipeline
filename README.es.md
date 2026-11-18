@@ -8,6 +8,30 @@ Convertí tu historial de **Xiaomi Mi Band / Mi Fitness** en datos a los que rea
 
 El código es público y los datos son privados: cada registro real queda en tu compu o en tu propio proyecto de Supabase.
 
+## De tu muñeca a Claude
+
+<p align="center">
+  <img src="assets/architecture-es.png" width="900" alt="Pipeline personal de datos de salud: tu actividad, Mi Band, celular, nube de Xiaomi, ETL en Python, base privada en Supabase y Claude">
+</p>
+
+<details>
+<summary><b>Salto por salto</b></summary>
+
+| Salto | Cómo | ¿Automático? | Demora |
+|---|---|---|---|
+| Tu actividad → Mi Band | Sensor óptico de pulso y acelerómetro. El estrés y las etapas del sueño los estiman los algoritmos de Xiaomi. | sí | continuo |
+| Mi Band → celular | Bluetooth Low Energy, a través de la app Mi Fitness | sí, cuando la app sincroniza | minutos |
+| Celular → nube de Xiaomi | Mi Fitness sincroniza con tu cuenta de Xiaomi | sí | minutos |
+| Nube de Xiaomi → este repo | Export de datos de la cuenta: archivos CSV en un ZIP con contraseña, que llega por mail | **no, manual** | días (Xiaomi habla de hasta unos 15 días hábiles) |
+| Export → Supabase | `scripts/refresh.py`: normaliza, borra identificadores y hace el upsert | un comando | segundos |
+| Supabase → vos | Digest semanal en Markdown, o Claude consultando los datos en vivo con el conector MCP mientras charlás | cuando lo pedís | segundos |
+
+</details>
+
+El único salto lento y manual es el export, y es a propósito: **este camino por export funciona con cualquier celular, incluso con Android 13 o anterior.** Desde Android 14, Health Connect viene integrado en el sistema, así que el export se podría reemplazar por una sincronización automática en segundo plano, sin pasos por lotes. Es la próxima etapa planeada, todavía no está construida (ver [Hoja de ruta](#hoja-de-ruta)).
+
+Adentro de este repo:
+
 ```text
 Export de la cuenta de Mi Fitness (CSV, se pide en account.xiaomi.com)
         │  scripts/import_mifitness.py   normaliza · borra identificadores · idempotente
@@ -79,6 +103,7 @@ supabase/
 docs/
   setup-guide(.es).md        paso a paso con tus propios datos
   design-notes(.es).md       decisiones, mapeo de datos, lecciones aprendidas
+assets/                      imagen de arquitectura (EN / ES) y su generador
 data/                        (Git lo ignora) exports privados, datos procesados, reportes
 ```
 
@@ -102,7 +127,8 @@ Las horas se guardan en UTC. `local_date` usa la zona horaria de cada registro c
 ## Hoja de ruta
 
 - **Hoy:** exports manuales periódicos → ETL → Supabase → digest semanal y conector de Claude.
-- **Ideas:** captura incremental con Android Health Connect, datos casi en tiempo real para el conector, OAuth en lugar de la ruta secreta y una herramienta de escritura para cargar datos manuales (por ejemplo, la inclinación de la cinta).
+- **Próximo, para Android 14 en adelante:** sincronización automática con Health Connect en lugar de exports por lotes, para que el conector responda siempre con datos casi en tiempo real. El camino por export queda para Android 13 o anterior.
+- **Ideas:** OAuth en lugar de la ruta secreta para el conector y una herramienta de escritura para cargar datos manuales (por ejemplo, la inclinación de la cinta).
 
 ## Licencia
 
