@@ -2,7 +2,10 @@
   "_how_to": "Edit this file to rebrand the dashboard: colors for both modes, fonts and titles. The template only uses these tokens. Keep the three series colors distinguishable for color-blind readers (check them with any CVD simulator) and at 3:1 contrast or more against 'surface'.",
   "name": "GlobalAIze",
   "defaultMode": "dark",
-  "title": { "es": "Mi salud", "en": "My health" },
+  "title": {
+    "es": "Mi salud",
+    "en": "My health"
+  },
   "fonts": {
     "stylesheet": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap",
     "body": "'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
@@ -26,26 +29,44 @@
       "de-emphasis": "#3d4958",
       "good": "#62d286",
       "bad": "#ef6661",
-      "calibration": "rgba(255, 255, 255, 0.035)"
+      "calibration": "rgba(255, 255, 255, 0.035)",
+      "card": "rgba(17, 34, 60, 0.55)",
+      "card-border": "rgba(187, 197, 209, 0.14)",
+      "card-highlight": "rgba(255, 255, 255, 0.07)",
+      "shadow": "rgba(0, 0, 0, 0.30)",
+      "glow-1": "rgba(13, 164, 207, 0.20)",
+      "glow-2": "rgba(111, 79, 161, 0.24)",
+      "glow-3": "rgba(210, 120, 48, 0.10)",
+      "ref": "rgba(98, 210, 134, 0.10)",
+      "ref-line": "rgba(98, 210, 134, 0.60)"
     },
     "light": {
-      "page": "#f2f5f9",
+      "page": "#f6f4ef",
       "surface": "#ffffff",
-      "surface-2": "#eef2f7",
+      "surface-2": "#f1efe9",
       "text": "#051e45",
       "text-2": "#404e63",
       "muted": "#6c7680",
-      "grid": "#e0e5eb",
-      "axis": "#bbc5d1",
-      "border": "rgba(5, 30, 69, 0.12)",
+      "grid": "#e7e4dd",
+      "axis": "#cbc7bd",
+      "border": "rgba(5, 30, 69, 0.10)",
       "accent": "#007fae",
       "series-1": "#007fae",
       "series-2": "#cb6620",
       "series-3": "#623e96",
-      "de-emphasis": "#c5cbd2",
+      "de-emphasis": "#cdd2d8",
       "good": "#1d7d3e",
       "bad": "#cc3336",
-      "calibration": "rgba(5, 30, 69, 0.04)"
+      "calibration": "rgba(5, 30, 69, 0.035)",
+      "card": "rgba(255, 255, 255, 0.80)",
+      "card-border": "rgba(5, 30, 69, 0.08)",
+      "card-highlight": "rgba(255, 255, 255, 1)",
+      "shadow": "rgba(40, 33, 20, 0.07)",
+      "glow-1": "rgba(0, 127, 174, 0.10)",
+      "glow-2": "rgba(98, 62, 150, 0.08)",
+      "glow-3": "rgba(203, 102, 32, 0.07)",
+      "ref": "rgba(29, 125, 62, 0.08)",
+      "ref-line": "rgba(29, 125, 62, 0.50)"
     }
   }
 }

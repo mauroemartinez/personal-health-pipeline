@@ -10,7 +10,16 @@ __FONT_LINK__
 __THEME_CSS__
 * { box-sizing: border-box; }
 html { background: var(--page); }
-body { margin: 0; background: var(--page); color: var(--text); font: 15px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+/* Soft brand glows behind the glass cards (fixed, so they stay put while scrolling) */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(55% 45% at 6% 0%, var(--glow-1), transparent 70%),
+              radial-gradient(45% 40% at 96% 16%, var(--glow-2), transparent 70%),
+              radial-gradient(60% 45% at 50% 108%, var(--glow-3), transparent 70%); }
+/* Frosted glass: translucent fill, blur of whatever is behind, hairline border, top highlight */
+.glass { background: var(--card); border: 1px solid var(--card-border);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: inset 0 1px 0 var(--card-highlight), 0 12px 32px var(--shadow); }
+body { margin: 0; background: transparent; color: var(--text); font: 15px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
 main { max-width: 1600px; margin: 0 auto; padding: clamp(16px, 2.5vw, 32px); }
 
 /* Header: title left, controls right; wraps on small screens */
@@ -18,26 +27,32 @@ header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content:
 h1 { margin: 0; font: 500 clamp(28px, 3vw, 40px)/1.1 var(--font-display); letter-spacing: -0.01em; }
 .subtitle { color: var(--text-2); margin-top: 4px; font-size: 14px; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg { display: inline-flex; border-radius: 999px; overflow: hidden; }
 .seg button, .theme { font: 500 13.5px var(--font-body); color: var(--text-2); background: transparent; border: 0; padding: 8px 14px; cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--border); }
 .seg button[aria-pressed="true"] { color: var(--text); background: var(--surface-2); box-shadow: inset 0 -2px 0 var(--accent); }
-.theme { border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.theme { border-radius: 999px; }
 button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.banner { margin: 0 0 16px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); font-size: 14px; }
+.banner { margin: 0 0 16px; padding: 10px 14px; border-radius: 12px; color: var(--text-2); font-size: 14px; }
 
 /* KPI row: 6 → 3 → 2 per row */
 .kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
-.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 12px; }
+.tile { border-radius: 16px; padding: 14px 16px 12px; }
 .tile .label { color: var(--text-2); font-size: 13px; }
 .tile .value { font: 600 30px/1.15 var(--font-body); margin-top: 4px; }
 .tile .value small { font-size: 15px; font-weight: 500; color: var(--text-2); margin-left: 4px; }
 .tile .delta { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
 .tile .delta.good { color: var(--good); } .tile .delta.bad { color: var(--bad); }
+.tile .ref { font-size: 12px; color: var(--text-2); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+.tile .ref::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--ref); border: 1px solid var(--ref-line); }
+.plot text.ref { fill: var(--text-2); font-size: 11.5px; font-weight: 500;
+  paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }  /* halo: readable over marks */
+.refs { margin: 8px 0 4px; padding-left: 18px; color: var(--text-2); font-size: 13px; }
+.refs li { margin: 3px 0; }
 
 /* Chart grid: 12 columns; wide cards take 8, narrow ones 4 */
 .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 14px; margin-top: 14px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 12px; min-width: 0; display: flex; flex-direction: column; }
+.card { border-radius: 16px; padding: 16px 18px 12px; min-width: 0; display: flex; flex-direction: column; }
 .w8 { grid-column: span 8; } .w4 { grid-column: span 4; } .w12 { grid-column: span 12; }
 .card h2 { margin: 0; font: 500 19px/1.25 var(--font-display); }
 .card .note { color: var(--text-2); font-size: 13px; margin-top: 2px; }
@@ -91,18 +106,19 @@ footer { color: var(--muted); font-size: 12.5px; margin-top: 20px; }
 <main>
   <header>
     <div><h1 id="title"></h1><div class="subtitle" id="subtitle"></div></div>
-    <div class="controls"><div class="seg" id="ranges" role="group"></div><button class="theme" id="theme" type="button"></button></div>
+    <div class="controls"><div class="seg glass" id="ranges" role="group"></div><button class="theme glass" id="theme" type="button"></button></div>
   </header>
-  <div class="banner" id="banner" hidden></div>
+  <div class="banner glass" id="banner" hidden></div>
   <section class="kpis" id="kpis"></section>
   <section class="grid">
-    <div class="card w8" id="c-sleep" data-h="270"><h2></h2><div class="note"></div><div class="legend"></div><div class="plot"></div></div>
-    <div class="card w4" id="c-stress" data-h="300"><h2></h2><div class="note"></div><div class="plot"></div></div>
-    <div class="card w8" id="c-steps" data-h="250"><h2></h2><div class="note"></div><div class="legend"></div><div class="plot"></div></div>
-    <div class="card w4" id="c-rhr" data-h="270"><h2></h2><div class="note"></div><div class="plot"></div></div>
-    <div class="card w4 solo" id="c-weight" data-h="240"><h2></h2><div class="note"></div><div class="plot"></div></div>
-    <div class="card w8" id="c-week"><h2 id="t-week-title"></h2><div class="scroll"><table id="t-week"></table></div></div>
-    <div class="card w12"><details><summary id="t-day-title"></summary><div class="scroll"><table id="t-day"></table></div></details></div>
+    <div class="card glass w8" id="c-sleep" data-h="270"><h2></h2><div class="note"></div><div class="legend"></div><div class="plot"></div></div>
+    <div class="card glass w4" id="c-stress" data-h="300"><h2></h2><div class="note"></div><div class="plot"></div></div>
+    <div class="card glass w8" id="c-steps" data-h="250"><h2></h2><div class="note"></div><div class="legend"></div><div class="plot"></div></div>
+    <div class="card glass w4" id="c-rhr" data-h="270"><h2></h2><div class="note"></div><div class="plot"></div></div>
+    <div class="card glass w4 solo" id="c-weight" data-h="240"><h2></h2><div class="note"></div><div class="plot"></div></div>
+    <div class="card glass w8" id="c-week"><h2 id="t-week-title"></h2><div class="scroll"><table id="t-week"></table></div></div>
+    <div class="card glass w12"><details><summary id="t-day-title"></summary><div class="scroll"><table id="t-day"></table></div></details></div>
+    <div class="card glass w12" id="c-refs"><h2></h2><div class="note"></div><ul class="refs" id="refs"></ul></div>
   </section>
   <footer id="footer"></footer>
 </main>
@@ -128,6 +144,12 @@ const I18N = {
     cols: { week: "Semana", days: "Días", steps: "Pasos/día", sleep: "Sueño (h)", deep: "Profundo (h)", rem: "REM (h)", light: "Liviano (h)",
       score: "Puntaje", rhr: "Pulso reposo", stress: "Estrés", workouts: "Entrenos", weight: "Peso (kg)", date: "Fecha", km: "Km", active: "Min activos" },
     sports: { outdoor_walking: "Caminata", indoor_running: "Cinta", strength_training: "Fuerza" },
+    zone: "zona ideal", bandSleep: (a, b) => `ideal ${a}–${b} h`, bandSteps: (a, b) => `meta ${a}–${b}`,
+    bandRhr: (a, b) => `normal ${a}–${b} lpm`, bandWeight: (a, b) => `IMC saludable ${a}–${b} kg`,
+    refSleep: (a, b) => `ideal ≈ ${a}–${b} h`, refScore: a => `bueno ≈ ${a} o más`, refRhr: (a, b) => `normal ${a}–${b} lpm`,
+    refStress: a => `ideal ≈ ${a} o menos`, refSteps: (a, b) => `meta ≈ ${a}–${b}`, refWeight: (a, b) => `IMC saludable ≈ ${a}–${b} kg`,
+    noHeight: "sumá HEALTH_HEIGHT_CM para ver tu rango",
+    refT: "Referencias orientativas", refNote: "Rangos generales para adultos, no consejo médico. Se editan en dashboard/references.json.",
     footer: g => `Generado el ${g}. Valores estimados por un wearable de muñeca, no son mediciones clínicas.` },
   en: { locale: "en-US", subtitle: (a, b, n) => `${a} → ${b} · ${n} days with data · Mi Fitness export`,
     synthetic: "Synthetic sample data (generated with scripts/make_sample_export.py). Not real health data.",
@@ -147,6 +169,12 @@ const I18N = {
     cols: { week: "Week", days: "Days", steps: "Steps/day", sleep: "Sleep (h)", deep: "Deep (h)", rem: "REM (h)", light: "Light (h)",
       score: "Score", rhr: "Resting HR", stress: "Stress", workouts: "Workouts", weight: "Weight (kg)", date: "Date", km: "Km", active: "Active min" },
     sports: { outdoor_walking: "Walk", indoor_running: "Treadmill", strength_training: "Strength" },
+    zone: "ideal zone", bandSleep: (a, b) => `ideal ${a}–${b} h`, bandSteps: (a, b) => `goal ${a}–${b}`,
+    bandRhr: (a, b) => `normal ${a}–${b} bpm`, bandWeight: (a, b) => `healthy BMI ${a}–${b} kg`,
+    refSleep: (a, b) => `ideal ≈ ${a}–${b} h`, refScore: a => `good ≈ ${a} or more`, refRhr: (a, b) => `normal ${a}–${b} bpm`,
+    refStress: a => `ideal ≈ ${a} or less`, refSteps: (a, b) => `goal ≈ ${a}–${b}`, refWeight: (a, b) => `healthy BMI ≈ ${a}–${b} kg`,
+    noHeight: "set HEALTH_HEIGHT_CM to see your range",
+    refT: "Reference ranges", refNote: "General ranges for adults, not medical advice. Edit them in dashboard/references.json.",
     footer: g => `Generated on ${g}. Values estimated by a wrist wearable, not clinical measurements.` },
 };
 const L = I18N[DATA.meta.lang] || I18N.en;
@@ -163,6 +191,7 @@ const nf = (v, d = 0) => v == null || Number.isNaN(v) ? "—" : new Intl.NumberF
 const FIRST = ROWS[0].date, LAST = ROWS[ROWS.length - 1].date;
 const CALIB_END = DATA.meta.calibrationDays > 0 ? addDays(FIRST, DATA.meta.calibrationDays) : null;
 let range = "all";
+const R = DATA.meta.refs || {};
 
 // ---------- helpers ----------
 function el(tag, attrs, parent, text) {
@@ -222,7 +251,7 @@ function showTip(target, title, lines, evt) {
 const hideTip = () => { tip.style.display = "none"; };
 
 // ---------- time axis frame ----------
-function timeFrame(card, dates, yTicks, padRight = 18) {
+function timeFrame(card, dates, yTicks, padRight = 18, ref = null) {
   const host = card.querySelector(".plot"); host.textContent = "";
   const height = plotHeight(card);
   const W = Math.max(host.clientWidth, 260), m = { l: 42, r: padRight, t: 14, b: 26 };
@@ -235,15 +264,24 @@ function timeFrame(card, dates, yTicks, padRight = 18) {
     el("svg:rect", { x: m.l, y: m.t, width: band * n, height: ph, style: "fill:var(--calibration)" }, svg);
     el("svg:text", { x: m.l + 5, y: m.t + 12, class: "calib" }, svg, L.calib);
   }
+  let refLabel = null;
+  if (ref && ref.hi > lo && ref.lo < hi) {  // approximate ideal range: a soft band with its edges and a label
+    const y0 = y(Math.max(ref.lo, lo)), y1 = y(Math.min(ref.hi, hi));
+    el("svg:rect", { x: m.l, y: y1, width: pw, height: Math.max(1, y0 - y1), style: "fill:var(--ref)" }, svg);
+    for (const v of [ref.lo, ref.hi]) if (v > lo && v < hi)
+      el("svg:line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), style: "stroke:var(--ref-line);stroke-width:1", "shape-rendering": "crispEdges" }, svg);
+    refLabel = el("svg:text", { x: W - m.r - 6, y: y0 - y1 > 18 ? y1 + 14 : y1 - 5, "text-anchor": "end", class: "ref" }, svg, ref.label);
+  }
   for (const t of yTicks) {
     el("svg:line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), style: `stroke:var(${t === lo ? "--axis" : "--grid"});stroke-width:1`, "shape-rendering": "crispEdges" }, svg);
     el("svg:text", { x: m.l - 7, y: y(t) + 4, "text-anchor": "end" }, svg, fmt(t));
   }
   const every = Math.max(1, Math.ceil(dates.length / Math.max(2, Math.floor(pw / 64))));
   dates.forEach((d, i) => { if (i % every === 0) el("svg:text", { x: x(i), y: height - 7, "text-anchor": "middle" }, svg, fmtDate.format(toD(d))); });
-  return { svg, W, m, pw, ph, band, x, y, height };
+  return { svg, W, m, pw, ph, band, x, y, height, refLabel };
 }
 function hitBands(f, dates, onShow, onHide) {
+  if (f.refLabel) f.svg.appendChild(f.refLabel);  // keep the reference label above the marks
   dates.forEach((d, i) => {
     const r = el("svg:rect", { x: f.m.l + f.band * i, y: f.m.t, width: f.band, height: f.ph, class: "hit", tabindex: 0 }, f.svg);
     const show = e => onShow(i, d, r, e), hide = () => { hideTip(); onHide && onHide(i); };
@@ -271,7 +309,8 @@ function sleepChart(dates) {
   const S = [["deep_h", "--series-3", L.deep], ["rem_h", "--series-2", L.rem], ["light_h", "--series-1", L.light_]];
   legend(card, S.map(([, c, l]) => [`var(${c})`, l]));
   const max = Math.max(1, ...dates.map(d => S.reduce((a, [k]) => a + ((BY_DATE[d] || {})[k] || 0), 0)));
-  const f = timeFrame(card, dates, niceTicks(0, max, 4));
+  const sr = R.sleep_hours, band = sr ? { lo: sr.min, hi: sr.max, label: L.bandSleep(nf(sr.min), nf(sr.max)) } : null;
+  const f = timeFrame(card, dates, niceTicks(0, Math.max(max, sr ? sr.max + 0.5 : 0), 4), 18, band);
   const w = barWidth(f.band);
   const groups = dates.map((d, i) => {
     const r = BY_DATE[d] || {}, g = el("svg:g", {}, f.svg);
@@ -317,6 +356,13 @@ function stressChart(dates) {
   for (const t of xt) el("svg:text", { x: X(t), y: m.t + ph + 16, "text-anchor": "middle" }, svg, fx(t));
   el("svg:text", { x: m.l + pw / 2, y: H - 4, "text-anchor": "middle", class: "lbl" }, svg, L.stressX);
   el("svg:text", { x: m.l - 34, y: 12, class: "lbl" }, svg, "↑ " + L.stressY);
+  const sx = R.stress && R.stress.max, sy = R.sleep_score && R.sleep_score.min;
+  if (sx != null && sy != null && sx > xt[0] && sy < yt[yt.length - 1]) {
+    const x1 = X(Math.min(sx, xt[xt.length - 1])), y1 = Y(Math.max(sy, yt[0]));
+    el("svg:rect", { x: m.l, y: m.t, width: x1 - m.l, height: y1 - m.t, style: "fill:var(--ref)" }, svg);
+    el("svg:path", { d: `M${m.l},${y1}H${x1}V${m.t}`, style: "fill:none;stroke:var(--ref-line);stroke-width:1" }, svg);
+    el("svg:text", { x: m.l + 6, y: m.t + 14, class: "ref" }, svg, `${L.zone} (≤${nf(sx)}, ≥${nf(sy)})`);
+  }
   if (pts.length >= 5 && r != null) {
     const cy = v => Y(Math.max(yt[0], Math.min(yt[yt.length - 1], icpt + slope * v)));
     el("svg:line", { x1: X(xt[0]), x2: X(xt[xt.length - 1]), y1: cy(xt[0]), y2: cy(xt[xt.length - 1]), style: "stroke:var(--muted);stroke-width:1.5" }, svg);
@@ -331,13 +377,13 @@ function stressChart(dates) {
   }
 }
 
-function lineChart(cardId, dates, key, title, note, unit, digits, connectGaps) {
+function lineChart(cardId, dates, key, title, note, unit, digits, connectGaps, band = null) {
   const card = document.getElementById(cardId);
   setHead(card, title, note);
   const v = vals(dates, key); const host = card.querySelector(".plot");
   if (!v.length) { host.textContent = "—"; return; }
   const pad = digits ? 0.5 : 2;
-  const f = timeFrame(card, dates, niceTicks(Math.min(...v) - pad, Math.max(...v) + pad, 4), 64);
+  const f = timeFrame(card, dates, niceTicks(Math.min(...v) - pad, Math.max(...v) + pad, 4), 64, band);
   const pts = dates.map((d, i) => (BY_DATE[d] || {})[key] != null ? [f.x(i), f.y(BY_DATE[d][key]), i] : null);
   let dStr = "", pen = false;
   for (const p of pts) { if (!p) { if (!connectGaps) pen = false; continue; } dStr += (pen ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); pen = true; }
@@ -361,7 +407,8 @@ function stepsChart(dates) {
   const card = document.getElementById("c-steps");
   setHead(card, L.stepsT, L.stepsN);
   legend(card, [["var(--series-1)", L.withW], ["var(--de-emphasis)", L.withoutW]]);
-  const f = timeFrame(card, dates, niceTicks(0, Math.max(1000, ...vals(dates, "steps")), 4));
+  const st = R.steps, band = st ? { lo: st.min, hi: st.max, label: L.bandSteps(nf(st.min), nf(st.max)) } : null;
+  const f = timeFrame(card, dates, niceTicks(0, Math.max(1000, st ? st.max * 1.05 : 0, ...vals(dates, "steps")), 4), 18, band);
   const w = barWidth(f.band);
   const bars = dates.map((d, i) => {
     const r = BY_DATE[d] || {}; if (!r.steps) return null;
@@ -380,11 +427,15 @@ function stepsChart(dates) {
 function kpis(dates) {
   const box = document.getElementById("kpis"); box.textContent = "";
   const prev = prevDates();
-  const defs = [[L.kSleep, "sleep_h", 1, L.h, +1], [L.kScore, "sleep_score", 0, "", +1], [L.kRhr, "rhr", 0, L.bpm, -1],
-                [L.kStress, "stress", 0, "", -1], [L.kSteps, "steps", 0, "", +1]];
-  for (const [label, key, dg, unit, goodDir] of defs) {
+  const ref = (o, f) => o ? f(o) : null;
+  const defs = [[L.kSleep, "sleep_h", 1, L.h, +1, ref(R.sleep_hours, o => L.refSleep(nf(o.min), nf(o.max)))],
+                [L.kScore, "sleep_score", 0, "", +1, ref(R.sleep_score, o => L.refScore(nf(o.min)))],
+                [L.kRhr, "rhr", 0, L.bpm, -1, ref(R.resting_hr, o => L.refRhr(nf(o.min), nf(o.max)))],
+                [L.kStress, "stress", 0, "", -1, ref(R.stress, o => L.refStress(nf(o.max)))],
+                [L.kSteps, "steps", 0, "", +1, ref(R.steps, o => L.refSteps(nf(o.min), nf(o.max)))]];
+  for (const [label, key, dg, unit, goodDir, refText] of defs) {
     const cur = mean(vals(dates, key)), pv = mean(vals(prev, key));
-    const t = el("div", { class: "tile" }, box); el("div", { class: "label" }, t, label);
+    const t = el("div", { class: "tile glass" }, box); el("div", { class: "label" }, t, label);
     const v = el("div", { class: "value" }, t, nf(cur, dg)); if (unit) el("small", {}, v, unit);
     let cls = "delta", txt = range === "all" ? L.noPrev : "—";
     if (cur != null && pv != null) {
@@ -393,12 +444,20 @@ function kpis(dates) {
       if (!flat) cls += Math.sign(diff) === goodDir ? " good" : " bad";
     }
     el("div", { class: cls }, t, txt);
+    if (refText) el("div", { class: "ref" }, t, refText);
   }
   const w = dates.filter(d => BY_DATE[d] && BY_DATE[d].weight != null);
-  const t = el("div", { class: "tile" }, box); el("div", { class: "label" }, t, L.kWeight);
+  const t = el("div", { class: "tile glass" }, box); el("div", { class: "label" }, t, L.kWeight);
   const first = w.length ? BY_DATE[w[0]].weight : null, last = w.length ? BY_DATE[w[w.length - 1]].weight : null;
   const v = el("div", { class: "value" }, t, nf(last, 1)); el("small", {}, v, L.kg);
   el("div", { class: "delta" }, t, w.length > 1 ? `${last - first > 0 ? "▲" : "▼"} ${nf(Math.abs(last - first), 1)} ${L.kg} ${L.inRange}` : "—");
+  el("div", { class: "ref" }, t, R.weight ? L.refWeight(nf(R.weight.min, 1), nf(R.weight.max, 1)) : L.noHeight);
+}
+function refsCard() {
+  const card = document.getElementById("c-refs");
+  setHead(card, L.refT, L.refNote);
+  const list = document.getElementById("refs"); list.textContent = "";
+  for (const line of R.sources || []) el("li", {}, list, line);
 }
 function isoWeek(s) {
   const d = toD(s), day = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - day + 3);
@@ -435,8 +494,13 @@ function render() {
   document.getElementById("title").textContent = DATA.meta.title;
   document.getElementById("subtitle").textContent = L.subtitle(fmtDate.format(toD(dates[0])), fmtDate.format(toD(LAST)), dates.filter(d => BY_DATE[d]).length);
   kpis(dates); sleepChart(dates); stressChart(dates); stepsChart(dates);
-  lineChart("c-rhr", dates, "rhr", L.rhrT, L.rhrN, L.bpm, 0, false);
-  lineChart("c-weight", dates, "weight", L.weightT, L.weightN(vals(dates, "weight").length), L.kg, 1, true);
+  const rr = R.resting_hr, wr = R.weight;
+  lineChart("c-rhr", dates, "rhr", L.rhrT, L.rhrN, L.bpm, 0, false,
+    rr ? { lo: rr.min, hi: rr.max, label: L.bandRhr(nf(rr.min), nf(rr.max)) } : null);
+  lineChart("c-weight", dates, "weight", L.weightT,
+    L.weightN(vals(dates, "weight").length) + " " + (wr ? L.refWeight(nf(wr.min, 1), nf(wr.max, 1)) + "." : L.noHeight + "."),
+    L.kg, 1, true, wr ? { lo: wr.min, hi: wr.max, label: L.bandWeight(nf(wr.min, 1), nf(wr.max, 1)) } : null);
+  refsCard();
   tables(dates);
 }
 const seg = document.getElementById("ranges");

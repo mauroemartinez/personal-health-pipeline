@@ -34,9 +34,11 @@ DEFAULT_OUTPUT = ROOT / "data" / "reports" / "dashboard.html"
 REPORTS = ROOT / "data" / "reports"
 TEMPLATE = ROOT / "dashboard" / "template.html"
 DEFAULT_THEME = ROOT / "dashboard" / "theme.json"
+DEFAULT_REFERENCES = ROOT / "dashboard" / "references.json"
 
 THEME_KEYS = ["page", "surface", "surface-2", "text", "text-2", "muted", "grid", "axis", "border", "accent",
-              "series-1", "series-2", "series-3", "de-emphasis", "good", "bad", "calibration"]
+              "series-1", "series-2", "series-3", "de-emphasis", "good", "bad", "calibration",
+              "card", "card-border", "card-highlight", "shadow", "glow-1", "glow-2", "glow-3", "ref", "ref-line"]
 SAFE_VALUE = re.compile(r"^[#\w\s().,%-]+$")  # colors like #0da4cf or rgba(5, 30, 69, 0.12)
 SAFE_FONT = re.compile(r"^[\w\s'\",.-]+$")
 
@@ -128,6 +130,34 @@ def load_theme(path: Path) -> dict[str, Any]:
     return theme
 
 
+def load_references(path: Path, lang: str, height: str | None) -> dict[str, Any]:
+    """Approximate reference ranges (not medical advice). Adds a weight band when a height (cm) is given."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    refs: dict[str, Any] = {}
+    sources = []
+    for key, value in raw.items():
+        if key.startswith("_") or not isinstance(value, dict):
+            continue
+        bounds = {k: float(v) for k, v in value.items() if k in ("min", "max") and isinstance(v, (int, float))}
+        if key != "bmi":
+            refs[key] = bounds
+        source = value.get("source", {})
+        if isinstance(source, dict) and source.get(lang):
+            sources.append(str(source[lang]))
+    height = (height or "").strip()
+    bmi = raw.get("bmi", {})
+    if height and "min" in bmi and "max" in bmi:
+        try:
+            meters = float(height.replace(",", ".")) / 100
+        except ValueError:
+            raise SystemExit("HEALTH_HEIGHT_CM must be a number of centimeters, e.g. 178")
+        if not 1.0 <= meters <= 2.5:
+            raise SystemExit("HEALTH_HEIGHT_CM looks wrong (expected 100-250 cm)")
+        refs["weight"] = {"min": round(bmi["min"] * meters ** 2, 1), "max": round(bmi["max"] * meters ** 2, 1)}
+    refs["sources"] = sources
+    return refs
+
+
 def theme_css(theme: dict[str, Any]) -> str:
     fonts = theme["fonts"]
     blocks = []
@@ -138,10 +168,10 @@ def theme_css(theme: dict[str, Any]) -> str:
     return "\n".join(blocks)
 
 
-def render_html(rows: list[dict[str, Any]], theme: dict[str, Any], lang: str, synthetic: bool,
-                calibration_days: int) -> str:
+def render_html(rows: list[dict[str, Any]], theme: dict[str, Any], refs: dict[str, Any], lang: str,
+                synthetic: bool, calibration_days: int) -> str:
     title = theme.get("title", {}).get(lang) or "Health dashboard"
-    meta = {"lang": lang, "synthetic": synthetic, "calibrationDays": calibration_days, "title": title,
+    meta = {"lang": lang, "synthetic": synthetic, "calibrationDays": calibration_days, "title": title, "refs": refs,
             "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
     payload = json.dumps({"rows": rows, "meta": meta}, ensure_ascii=False, separators=(",", ":"))
     payload = payload.replace("</", "<\\/")  # never close the <script> tag from inside the data
@@ -180,6 +210,10 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--lang", choices=("es", "en"), default="es")
     parser.add_argument("--theme-file", type=Path, default=DEFAULT_THEME, help="Brand colors and fonts (JSON)")
+    parser.add_argument("--height-cm", help="Height for the healthy-weight band (default: HEALTH_HEIGHT_CM; "
+                        "ignored for synthetic data unless given here)")
+    parser.add_argument("--references-file", type=Path, default=DEFAULT_REFERENCES,
+                        help="Approximate ideal ranges drawn on the charts (JSON)")
     parser.add_argument("--calibration-days", type=int, help="Shade the first N days (default: HEALTH_CALIBRATION_DAYS or 0)")
     parser.add_argument("--png", type=Path, help="Also save a screenshot (needs Playwright)")
     parser.add_argument("--mode", choices=("light", "dark"), help="Color mode for --png (default: the theme's)")
@@ -203,8 +237,11 @@ def main() -> None:
         calibration = 0 if synthetic else int(os.environ.get("HEALTH_CALIBRATION_DAYS", "0") or 0)
 
     theme = load_theme(args.theme_file)
+    # Never mix your real height into synthetic (public) output: only an explicit --height-cm counts there.
+    height = args.height_cm if args.height_cm or synthetic else os.environ.get("HEALTH_HEIGHT_CM")
+    refs = load_references(args.references_file, args.lang, height)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_html(rows, theme, args.lang, synthetic, max(calibration, 0)), encoding="utf-8")
+    out.write_text(render_html(rows, theme, refs, args.lang, synthetic, max(calibration, 0)), encoding="utf-8")
     print(f"Dashboard ({theme.get('name', 'custom')} theme): {len(rows)} days -> {out.relative_to(ROOT)}")
     if args.png:
         args.png.parent.mkdir(parents=True, exist_ok=True)

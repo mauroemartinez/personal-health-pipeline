@@ -144,6 +144,8 @@ python scripts/dashboard.py             # Spanish labels; --lang en for English
 
 It writes `data/reports/dashboard.html`: one file that works on a wide screen, a tablet or a phone, and offline (fonts then fall back to system ones). It has filters (all, last 4 weeks, last 2 weeks), KPIs against the previous period, sleep stages, stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. If your history starts the day you got the band, set `HEALTH_CALIBRATION_DAYS=4` in `.env` to shade those first days, when wear is partial and the band is still calibrating.
 
+**Ideal ranges.** Every chart shows an approximate ideal band, and each KPI an "ideal ≈" line. The values and their sources are in `dashboard/references.json`: general adult guidance, not medical advice, so edit them for your age (for example 6,000–8,000 steps from 60 on) or your doctor's indications. To get a healthy-weight band (BMI 18.5–24.9), add your height to `.env` as `HEALTH_HEIGHT_CM=178`; it stays private and is never used for synthetic sample output.
+
 #### Make it yours
 
 1. Copy `dashboard/theme.json` (e.g. to `my-theme.json`) and change the colors for both modes, the fonts (`stylesheet` can point to any Google Fonts URL, or be empty to use system fonts) and the titles.

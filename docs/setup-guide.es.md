@@ -144,6 +144,8 @@ python scripts/dashboard.py             # en español; --lang en para inglés
 
 Escribe `data/reports/dashboard.html`: un solo archivo que funciona en pantalla ancha, tablet o celular, y sin conexión (en ese caso usa las tipografías del sistema). Tiene filtros (todo, últimas 4 semanas, últimas 2 semanas), indicadores contra el período anterior, etapas del sueño, estrés contra el sueño de esa noche, pulso en reposo, pasos con los días de entrenamiento resaltados, peso y tablas semana a semana y día por día. Si tu historial empieza el día que te pusiste la banda, poné `HEALTH_CALIBRATION_DAYS=4` en el `.env` para sombrear esos primeros días, cuando la banda todavía se está calibrando y quizás no la usaste todo el día.
 
+**Rangos ideales.** Cada gráfico muestra una franja ideal aproximada, y cada indicador una línea "ideal ≈". Los valores y sus fuentes están en `dashboard/references.json`: son orientaciones generales para adultos, no consejo médico, así que editalos según tu edad (por ejemplo, 6.000–8.000 pasos desde los 60) o lo que te indique tu médico. Para ver una franja de peso saludable (IMC 18,5–24,9), agregá tu altura al `.env` como `HEALTH_HEIGHT_CM=178`: queda privada y nunca se usa para los datos sintéticos.
+
 #### Hacelo tuyo
 
 1. Copiá `dashboard/theme.json` (por ejemplo a `mi-tema.json`) y cambiá los colores de los dos modos, las tipografías (`stylesheet` puede apuntar a cualquier URL de Google Fonts, o quedar vacío para usar las del sistema) y los títulos.

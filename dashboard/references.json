@@ -1,0 +1,45 @@
+{
+  "_how_to": "Approximate reference ranges drawn on the charts and KPIs. General guidance for adults, not medical advice: edit them for your age or your doctor's indications. For a healthy-weight band, set HEALTH_HEIGHT_CM in .env.",
+  "sleep_hours": {
+    "min": 7, "max": 9,
+    "source": {
+      "es": "Sueño: 7–9 h por noche para adultos de 18 a 64 años (National Sleep Foundation, 2015).",
+      "en": "Sleep: 7–9 h per night for adults aged 18–64 (National Sleep Foundation, 2015)."
+    }
+  },
+  "sleep_score": {
+    "min": 80,
+    "source": {
+      "es": "Puntaje de sueño: 80 o más se suele considerar bueno en otras apps (por ejemplo, Fitbit: 80–89 bueno, 90+ excelente). Xiaomi no publica su escala.",
+      "en": "Sleep score: 80 or more is usually considered good in other apps (e.g. Fitbit: 80–89 good, 90+ excellent). Xiaomi does not publish its scale."
+    }
+  },
+  "stress": {
+    "max": 50,
+    "source": {
+      "es": "Estrés (escala de Xiaomi): relajado 1–25, leve 26–50, moderado 51–80, alto 81–100. Se marca como ideal hasta 50.",
+      "en": "Stress (Xiaomi scale): relaxed 1–25, mild 26–50, moderate 51–80, high 81–100. Up to 50 is marked as ideal."
+    }
+  },
+  "resting_hr": {
+    "min": 60, "max": 100,
+    "source": {
+      "es": "Pulso en reposo: 60–100 lpm es el rango normal en adultos (American Heart Association); en personas entrenadas suele ser más bajo.",
+      "en": "Resting heart rate: 60–100 bpm is the normal adult range (American Heart Association); it is often lower in trained people."
+    }
+  },
+  "steps": {
+    "min": 8000, "max": 10000,
+    "source": {
+      "es": "Pasos: el beneficio en mortalidad se estabiliza hacia 8.000–10.000 por día en menores de 60 años y 6.000–8.000 desde los 60 (Paluch et al., Lancet Public Health, 2022).",
+      "en": "Steps: the mortality benefit levels off around 8,000–10,000 a day under 60 and 6,000–8,000 from 60 on (Paluch et al., Lancet Public Health, 2022)."
+    }
+  },
+  "bmi": {
+    "min": 18.5, "max": 24.9,
+    "source": {
+      "es": "Peso: rango de IMC 18,5–24,9 (OMS), calculado con tu altura. El IMC no distingue músculo de grasa.",
+      "en": "Weight: BMI range 18.5–24.9 (WHO), computed from your height. BMI does not tell muscle from fat."
+    }
+  }
+}

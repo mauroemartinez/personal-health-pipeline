@@ -53,7 +53,7 @@ data/processed/mi_fitness/*.jsonl        private, ignored by Git
   <img src="assets/dashboard-en.png" width="900" alt="Health dashboard with synthetic data: KPI tiles, sleep stages per night, daytime stress against that night's sleep score, and resting heart rate">
 </p>
 
-`python scripts/dashboard.py` builds a single HTML file with no dependencies that opens in any browser, phone included: KPIs against the previous period, sleep stages per night, daytime stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. It has tooltips on hover or keyboard focus, light and dark mode, and a validated colorblind-safe palette. It adapts from a wide screen down to a phone. The picture above uses synthetic data; your own dashboard stays in `data/reports/` (ignored by Git).
+`python scripts/dashboard.py` builds a single HTML file with no dependencies that opens in any browser, phone included: KPIs against the previous period, sleep stages per night, daytime stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. It has tooltips on hover or keyboard focus, light and dark mode, and a validated colorblind-safe palette. Every chart and KPI shows an **approximate ideal range** with its source (sleep 7–9 h, 8,000–10,000 steps, resting heart rate 60–100 bpm, stress up to 50 on Xiaomi's scale, sleep score 80+, and a healthy-weight band if you set `HEALTH_HEIGHT_CM`); the ranges live in [`dashboard/references.json`](dashboard/references.json), so you can adapt them to your age or your doctor's advice. Frosted-glass cards, and it adapts from a wide screen down to a phone. The picture above uses synthetic data; your own dashboard stays in `data/reports/` (ignored by Git).
 
 **Make it yours:** the look lives in [`dashboard/theme.json`](dashboard/theme.json): colors for dark and light mode, fonts and titles. Edit it, or pass your own file with `--theme-file`, and the charts follow; the layout and charts are in [`dashboard/template.html`](dashboard/template.html). The default theme uses the GlobalAIze brand colors, with the chart palette validated for color-blind readers.
 
@@ -110,6 +110,7 @@ scripts/
   make_sample_export.py      synthetic Mi Fitness export for trying it without a Mi Band
 dashboard/
   theme.json                 colors (dark / light), fonts and titles: edit this to rebrand
+  references.json            approximate ideal ranges drawn on the charts, with sources
   template.html              layout and charts (plain SVG, no libraries)
 supabase/
   migrations/0001_health_schema.sql   tables, views, RLS, loader role
