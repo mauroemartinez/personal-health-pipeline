@@ -65,7 +65,10 @@ El export se mapeó sin mostrar nunca un valor biométrico ni un identificador:
 
 ### Dashboard (`scripts/dashboard.py`)
 
-- Un solo archivo HTML autocontenido: los datos van embebidos como JSON y los gráficos se dibujan en SVG sin librerías, así que funciona sin conexión y nunca pide nada a internet con tus datos adentro.
+- Un solo archivo HTML autocontenido: los datos van embebidos como JSON y los gráficos se dibujan en SVG sin librerías. El único pedido a internet es la hoja de tipografías, que no lleva datos; sin conexión usa las tipografías del sistema.
+- El aspecto y la lógica están separados: `dashboard/theme.json` tiene todos los colores (de los dos modos), las tipografías y los títulos; `dashboard/template.html` solo usa esas variables. `scripts/dashboard.py` valida el tema (claves obligatorias, valores seguros) y lo inyecta junto con los datos.
+- El tema por defecto toma la marca GlobalAIze: fondos azul noche, el celeste de la marca y el naranja que su sitio ya usa en gráficos. Para la tercera serie se probó un violeta de la marca y falló la prueba de daltonismo contra el celeste, así que quedó un violeta más profundo que pasa en los dos modos.
+- Grilla adaptable: dos tercios más un tercio por fila en pantallas anchas, dos columnas en tablet (con relleno de huecos, para que no queden filas a medias) y una columna en el celular; cada gráfico se estira para llenar su tarjeta.
 - Está armado con reglas explícitas de visualización: la paleta (tres colores, en modo claro y oscuro) se validó con un script para que se distinga con daltonismo, en lugar de elegirla a ojo; no hay gráficos con dos ejes (estrés y sueño van en un gráfico de dispersión, no en dos líneas con dos escalas); los trazos son finos, las líneas de grilla son finas y continuas, y cada gráfico tiene tooltip con el mouse o el teclado y una tabla con los mismos valores.
 - La forma de "énfasis" para los pasos: los días con entrenamiento en el color de acento y el resto en gris, en lugar de una escala de colores por valor.
 - Protección de privacidad: el HTML se tiene que escribir dentro de `data/reports/`, y una captura de datos reales no se puede guardar fuera de esa carpeta. Las imágenes del README salen de datos sintéticos.

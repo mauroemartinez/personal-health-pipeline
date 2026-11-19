@@ -65,7 +65,10 @@ The export was mapped without ever printing a biometric value or an identifier:
 
 ### Dashboard (`scripts/dashboard.py`)
 
-- One self-contained HTML file: data inlined as JSON, charts drawn as plain SVG with no libraries, so it works offline and never fetches anything with your data in it.
+- One self-contained HTML file: data inlined as JSON, charts drawn as plain SVG with no libraries. The only network request is the font stylesheet, which carries no data; offline it falls back to system fonts.
+- Look and logic are separate: `dashboard/theme.json` holds every color (both modes), the fonts and the titles; `dashboard/template.html` only references those tokens. `scripts/dashboard.py` validates the theme (required keys, safe values) and injects it with the data.
+- The default theme takes the GlobalAIze brand: night-navy surfaces, the brand cyan and the warm orange already used for charts on its site. A brand violet was tried as the third series and failed the color-blind check against the cyan, so a deeper violet that passes in both modes took its place.
+- Responsive grid: two-thirds plus one-third per row on wide screens, two columns on tablets (dense packing, so no half-empty rows), one column on phones; every plot stretches to fill its card.
 - Built following explicit data-visualization rules: the palette (three categorical slots, light and dark) was validated with a script for colorblind separation instead of eyeballed; there are no dual-axis charts (stress and sleep are a scatter, not two lines on two scales); marks are thin, gridlines are solid hairlines, and every chart has a hover or keyboard tooltip plus a table with the same values.
 - The "emphasis" form for steps: workout days in the accent color, the rest in gray, instead of a value ramp.
 - Privacy guard: the HTML must be written under `data/reports/`, and a screenshot of real data can't be written outside it. The README pictures come from synthetic data.

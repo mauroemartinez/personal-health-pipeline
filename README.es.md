@@ -53,7 +53,9 @@ data/processed/mi_fitness/*.jsonl        privado, Git lo ignora
   <img src="assets/dashboard-es.png" width="900" alt="Dashboard de salud con datos sintéticos: indicadores, etapas del sueño por noche, estrés del día contra el puntaje de sueño de esa noche y pulso en reposo">
 </p>
 
-`python scripts/dashboard.py` arma un único archivo HTML, sin dependencias, que se abre en cualquier navegador, incluso en el celular. Muestra indicadores contra el período anterior, las etapas del sueño por noche, el estrés del día contra el sueño de esa noche, el pulso en reposo, los pasos con los días de entrenamiento resaltados, el peso y tablas semana a semana y día por día. Tiene tooltips al pasar el mouse o con el teclado, modo claro y oscuro, y una paleta validada para personas con daltonismo. La imagen de arriba usa datos sintéticos; tu dashboard queda en `data/reports/` (Git lo ignora).
+`python scripts/dashboard.py` arma un único archivo HTML, sin dependencias, que se abre en cualquier navegador, incluso en el celular. Muestra indicadores contra el período anterior, las etapas del sueño por noche, el estrés del día contra el sueño de esa noche, el pulso en reposo, los pasos con los días de entrenamiento resaltados, el peso y tablas semana a semana y día por día. Tiene tooltips al pasar el mouse o con el teclado, modo claro y oscuro, y una paleta validada para personas con daltonismo. Se adapta desde una pantalla ancha hasta el celular. La imagen de arriba usa datos sintéticos; tu dashboard queda en `data/reports/` (Git lo ignora).
+
+**Hacelo tuyo:** el aspecto vive en [`dashboard/theme.json`](dashboard/theme.json): colores para modo oscuro y claro, tipografías y títulos. Editalo, o pasá tu propio archivo con `--theme-file`, y los gráficos lo siguen; el diseño y los gráficos están en [`dashboard/template.html`](dashboard/template.html). El tema por defecto usa los colores de la marca GlobalAIze, con la paleta de los gráficos validada para personas con daltonismo.
 
 ## Usalo con tus propios datos
 
@@ -101,11 +103,14 @@ scripts/
   inspect_export.py          estructura del export (encabezados, conteos) sin valores
   import_mifitness.py        export → data/processed/mi_fitness/*.jsonl
   weekly_digest.py           JSONL → data/reports/weekly/<semana>.md
-  dashboard.py               JSONL → data/reports/dashboard.html (un solo archivo, sin dependencias)
+  dashboard.py               JSONL + dashboard/ → data/reports/dashboard.html (un solo archivo)
   load_supabase.py           JSONL → schema `health` de Supabase (valida, o --apply)
   deploy_connector.py        publica el conector MCP con la Management API de Supabase
   refresh.py                 todo el pipeline con un solo comando (o --sample con datos sintéticos)
   make_sample_export.py      export sintético de Mi Fitness para probarlo sin una Mi Band
+dashboard/
+  theme.json                 colores (oscuro / claro), tipografías y títulos: editalo para cambiar la marca
+  template.html              diseño y gráficos (SVG puro, sin librerías)
 supabase/
   migrations/0001_health_schema.sql   tablas, vistas, RLS, usuario de carga
   migrations/0002_health_reader.sql   usuario de solo lectura para el conector

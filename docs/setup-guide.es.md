@@ -142,7 +142,13 @@ Pegalo en cualquier asistente (Claude, ChatGPT, Gemini…) y preguntá lo que qu
 python scripts/dashboard.py             # en español; --lang en para inglés
 ```
 
-Escribe `data/reports/dashboard.html`: un solo archivo, sin dependencias, que funciona sin conexión y en el celular. Tiene filtros (todo, últimas 4 semanas, últimas 2 semanas), indicadores contra el período anterior, etapas del sueño, estrés contra el sueño de esa noche, pulso en reposo, pasos con los días de entrenamiento resaltados, peso y tablas semana a semana y día por día. Si tu historial empieza el día que te pusiste la banda, poné `HEALTH_CALIBRATION_DAYS=4` en el `.env` para sombrear esos primeros días, cuando la banda todavía se está calibrando y quizás no la usaste todo el día.
+Escribe `data/reports/dashboard.html`: un solo archivo que funciona en pantalla ancha, tablet o celular, y sin conexión (en ese caso usa las tipografías del sistema). Tiene filtros (todo, últimas 4 semanas, últimas 2 semanas), indicadores contra el período anterior, etapas del sueño, estrés contra el sueño de esa noche, pulso en reposo, pasos con los días de entrenamiento resaltados, peso y tablas semana a semana y día por día. Si tu historial empieza el día que te pusiste la banda, poné `HEALTH_CALIBRATION_DAYS=4` en el `.env` para sombrear esos primeros días, cuando la banda todavía se está calibrando y quizás no la usaste todo el día.
+
+#### Hacelo tuyo
+
+1. Copiá `dashboard/theme.json` (por ejemplo a `mi-tema.json`) y cambiá los colores de los dos modos, las tipografías (`stylesheet` puede apuntar a cualquier URL de Google Fonts, o quedar vacío para usar las del sistema) y los títulos.
+2. Cuidá que `series-1`, `series-2` y `series-3` se distingan bien con daltonismo (probalos con un simulador) y tengan contraste de 3:1 o más contra `surface`.
+3. Generalo con `python scripts/dashboard.py --theme-file mi-tema.json`. Si falta una clave o un valor es raro, el script frena con un mensaje claro.
 
 > Si con el digest te alcanza, podés frenar acá.
 

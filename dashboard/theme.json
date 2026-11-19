@@ -1,0 +1,51 @@
+{
+  "_how_to": "Edit this file to rebrand the dashboard: colors for both modes, fonts and titles. The template only uses these tokens. Keep the three series colors distinguishable for color-blind readers (check them with any CVD simulator) and at 3:1 contrast or more against 'surface'.",
+  "name": "GlobalAIze",
+  "defaultMode": "dark",
+  "title": { "es": "Mi salud", "en": "My health" },
+  "fonts": {
+    "stylesheet": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap",
+    "body": "'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
+    "display": "'Newsreader', Georgia, 'Times New Roman', serif"
+  },
+  "modes": {
+    "dark": {
+      "page": "#040f23",
+      "surface": "#09182f",
+      "surface-2": "#14243c",
+      "text": "#f0eee9",
+      "text-2": "#bbc5d1",
+      "muted": "#8d9aa8",
+      "grid": "#18273c",
+      "axis": "#2a394d",
+      "border": "rgba(187, 197, 209, 0.12)",
+      "accent": "#22b5e1",
+      "series-1": "#0da4cf",
+      "series-2": "#d27830",
+      "series-3": "#6f4fa1",
+      "de-emphasis": "#3d4958",
+      "good": "#62d286",
+      "bad": "#ef6661",
+      "calibration": "rgba(255, 255, 255, 0.035)"
+    },
+    "light": {
+      "page": "#f2f5f9",
+      "surface": "#ffffff",
+      "surface-2": "#eef2f7",
+      "text": "#051e45",
+      "text-2": "#404e63",
+      "muted": "#6c7680",
+      "grid": "#e0e5eb",
+      "axis": "#bbc5d1",
+      "border": "rgba(5, 30, 69, 0.12)",
+      "accent": "#007fae",
+      "series-1": "#007fae",
+      "series-2": "#cb6620",
+      "series-3": "#623e96",
+      "de-emphasis": "#c5cbd2",
+      "good": "#1d7d3e",
+      "bad": "#cc3336",
+      "calibration": "rgba(5, 30, 69, 0.04)"
+    }
+  }
+}

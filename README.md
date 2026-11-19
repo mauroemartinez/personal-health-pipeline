@@ -53,7 +53,9 @@ data/processed/mi_fitness/*.jsonl        private, ignored by Git
   <img src="assets/dashboard-en.png" width="900" alt="Health dashboard with synthetic data: KPI tiles, sleep stages per night, daytime stress against that night's sleep score, and resting heart rate">
 </p>
 
-`python scripts/dashboard.py` builds a single HTML file with no dependencies that opens in any browser, phone included: KPIs against the previous period, sleep stages per night, daytime stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. It has tooltips on hover or keyboard focus, light and dark mode, and a validated colorblind-safe palette. The picture above uses synthetic data; your own dashboard stays in `data/reports/` (ignored by Git).
+`python scripts/dashboard.py` builds a single HTML file with no dependencies that opens in any browser, phone included: KPIs against the previous period, sleep stages per night, daytime stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. It has tooltips on hover or keyboard focus, light and dark mode, and a validated colorblind-safe palette. It adapts from a wide screen down to a phone. The picture above uses synthetic data; your own dashboard stays in `data/reports/` (ignored by Git).
+
+**Make it yours:** the look lives in [`dashboard/theme.json`](dashboard/theme.json): colors for dark and light mode, fonts and titles. Edit it, or pass your own file with `--theme-file`, and the charts follow; the layout and charts are in [`dashboard/template.html`](dashboard/template.html). The default theme uses the GlobalAIze brand colors, with the chart palette validated for color-blind readers.
 
 ## Use it with your own data
 
@@ -101,11 +103,14 @@ scripts/
   inspect_export.py          structure of the export (headers, counts) without values
   import_mifitness.py        export → data/processed/mi_fitness/*.jsonl
   weekly_digest.py           JSONL → data/reports/weekly/<week>.md
-  dashboard.py               JSONL → data/reports/dashboard.html (single file, no dependencies)
+  dashboard.py               JSONL + dashboard/ → data/reports/dashboard.html (single file)
   load_supabase.py           JSONL → Supabase schema `health` (validate, or --apply)
   deploy_connector.py        deploys the MCP connector via the Supabase Management API
   refresh.py                 whole pipeline in one command (or --sample for synthetic data)
   make_sample_export.py      synthetic Mi Fitness export for trying it without a Mi Band
+dashboard/
+  theme.json                 colors (dark / light), fonts and titles: edit this to rebrand
+  template.html              layout and charts (plain SVG, no libraries)
 supabase/
   migrations/0001_health_schema.sql   tables, views, RLS, loader role
   migrations/0002_health_reader.sql   read-only role for the connector

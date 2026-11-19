@@ -142,7 +142,13 @@ Paste it into any chat assistant (Claude, ChatGPT, Gemini…) and ask away. Days
 python scripts/dashboard.py             # Spanish labels; --lang en for English
 ```
 
-It writes `data/reports/dashboard.html`: one file, no dependencies, works offline and on a phone. It has filters (all, last 4 weeks, last 2 weeks), KPIs against the previous period, sleep stages, stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. If your history starts the day you got the band, set `HEALTH_CALIBRATION_DAYS=4` in `.env` to shade those first days, when wear is partial and the band is still calibrating.
+It writes `data/reports/dashboard.html`: one file that works on a wide screen, a tablet or a phone, and offline (fonts then fall back to system ones). It has filters (all, last 4 weeks, last 2 weeks), KPIs against the previous period, sleep stages, stress against that night's sleep, resting heart rate, steps with workout days highlighted, weight, and week-by-week and day-by-day tables. If your history starts the day you got the band, set `HEALTH_CALIBRATION_DAYS=4` in `.env` to shade those first days, when wear is partial and the band is still calibrating.
+
+#### Make it yours
+
+1. Copy `dashboard/theme.json` (e.g. to `my-theme.json`) and change the colors for both modes, the fonts (`stylesheet` can point to any Google Fonts URL, or be empty to use system fonts) and the titles.
+2. Keep `series-1`, `series-2` and `series-3` easy to tell apart for color-blind readers (check them with a CVD simulator) and at 3:1 contrast or more against `surface`.
+3. Build it with `python scripts/dashboard.py --theme-file my-theme.json`. A missing key or an odd value stops the build with a clear message.
 
 > If the digest is all you need, you can stop here.
 
